@@ -1,0 +1,12 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="PaperServer" type="JarApplication">
+        <option name="JAR_PATH" value="$server_path/paper.jar" />
+        <option name="VM_PARAMETERS" value="-server -Xmx4G -Xms4G -DIReallyKnowWhatIAmDoingISwear" />
+        <option name="PROGRAM_PARAMETERS" value="nogui" />
+        <option name="WORKING_DIRECTORY" value="$server_path" />
+        <option name="ALTERNATIVE_JRE_PATH" />
+        <method v="2">
+            <option name="Gradle.BeforeRunTask" enabled="true" tasks="copyPluginToServer" externalProjectPath="$project_dir" vmOptions="" scriptParameters="" />
+        </method>
+    </configuration>
+</component>
