@@ -1,1 +1,1 @@
-rootProject.name = "Template"
+rootProject.name = "Kotlin-Plugin-Template"
