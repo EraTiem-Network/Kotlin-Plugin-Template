@@ -6,7 +6,6 @@ build/
 
 
 ### Files with secrets and private paths ###
-gradle.properties
 .idea/runConfigurations
 
 ### IntelliJ IDEA ###

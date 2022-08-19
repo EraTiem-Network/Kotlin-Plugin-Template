@@ -91,32 +91,31 @@ tasks {
         dependsOn(shadowJar)
     }
 
-    //
     create("copyPluginToServer") {
         dependsOn(build)
-        group = "plugin"
-        enabled = true
 
-        val serverPath: String by project
-        enabled = serverPath.isNotBlank()
+        group = "plugin"
+        enabled = false
 
         outputs.upToDateWhen { false }
-        val libsDir = File("${project.buildDir.absolutePath}${File.separator}libs")
-        val destinationFile =
-            File("$serverPath${File.separator}plugins${File.separator}${rootProject.name.toLowerCase()}.jar")
-        val jarFiles: List<File>? = libsDir.listFiles()?.filter { it.extension == "jar" }
 
-        enabled =
+        val serverPath: String by project
+
+        if (serverPath.isNotBlank() && File(serverPath).exists()) {
+            val libsDir = File("${project.buildDir.absolutePath}${File.separator}libs")
+            val destinationFile =
+                File("$serverPath${File.separator}plugins${File.separator}${rootProject.name.toLowerCase()}.jar")
+            val jarFiles: List<File>? = libsDir.listFiles()?.filter { it.extension == "jar" }
+
             if (jarFiles?.size == 1) {
                 jarFiles[0].copyTo(
                     destinationFile,
                     true
                 )
 
-                destinationFile.exists()
-            } else {
-                false
+                enabled = destinationFile.exists()
             }
+        }
     }
 
     create<Copy>("generateIntelliJRunConfig") {
