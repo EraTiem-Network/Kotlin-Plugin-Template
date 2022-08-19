@@ -175,10 +175,7 @@ fun getAsYamlList(commaSeparatedList: Any?): String {
 
 fun bitBuildCredentials(maven: MavenArtifactRepository) {
     maven.credentials {
-        val mavenUsr: String by System.getProperties()
-        val mavenPsw: String by System.getProperties()
-
-        username = mavenUsr
-        password = mavenPsw
+        username = System.getenv("ARTIFACTORY_USER")
+        password = System.getenv("ARTIFACTORY_PASS")
     }
 }
