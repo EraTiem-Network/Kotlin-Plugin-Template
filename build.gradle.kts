@@ -8,6 +8,7 @@ plugins {
     val shadowVersion: String by System.getProperties()
 
     kotlin("jvm").version(kotlinVersion)
+    kotlin("kapt").version(kotlinVersion)
     id("com.github.johnrengelman.shadow").version(shadowVersion)
 
     id("maven-publish")
@@ -36,7 +37,10 @@ dependencies {
     if (!spigotApiVersion.isNullOrBlank()) compileOnly("org.spigotmc", "spigot-api", spigotApiVersion)
     if (!paperApiVersion.isNullOrBlank()) compileOnly("io.papermc.paper", "paper-api", paperApiVersion)
     if (!bungeeApiVersion.isNullOrBlank()) compileOnly("net.md-5", "bungeecord-api", bungeeApiVersion)
-    if (!velocityApiVersion.isNullOrBlank()) compileOnly("com.velocitypowered", "velocity-api", velocityApiVersion)
+    if (!velocityApiVersion.isNullOrBlank()) {
+        compileOnly("com.velocitypowered", "velocity-api", velocityApiVersion)
+        kapt("com.velocitypowered", "velocity-api", velocityApiVersion)
+    }
 }
 
 val jarTasks: MutableSet<TaskProvider<ShadowJar>> = mutableSetOf()
@@ -185,12 +189,11 @@ fun getJarTaskExcludes(): Map<String, Set<String>> {
         "plugin.yml",
         "velocity-plugin.json"
     )
-    if (enableVelocity) jarTaskExcludes["velocity"] =
-        setOf(
-            "$workingPackage/velocity/**",
-            "plugin.yml",
-            "bungee.yml"
-        )
+    if (enableVelocity) jarTaskExcludes["velocity"] = setOf(
+        "$workingPackage/velocity/**",
+        "plugin.yml",
+        "bungee.yml"
+    )
     if (enableDependency.toBoolean()) jarTaskExcludes[""] = setOf(
         "$workingPackage/spigot/**",
         "$workingPackage/paper/**",
