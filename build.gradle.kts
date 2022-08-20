@@ -32,7 +32,7 @@ dependencies {
     val velocityApiVersion: String? by project
 
     compileOnly(kotlin("stdlib", kotlinVersion))
-    compileOnly(kotlin("script-runtime", kotlinVersion))
+
     if (!spigotApiVersion.isNullOrBlank()) compileOnly("org.spigotmc", "spigot-api", spigotApiVersion)
     if (!paperApiVersion.isNullOrBlank()) compileOnly("io.papermc.paper", "paper-api", paperApiVersion)
     if (!bungeeApiVersion.isNullOrBlank()) compileOnly("net.md-5", "bungeecord-api", bungeeApiVersion)
