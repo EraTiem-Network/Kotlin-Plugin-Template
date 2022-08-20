@@ -1,4 +1,6 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import java.util.stream.Collectors
 
 plugins {
@@ -24,10 +26,17 @@ repositories {
 
 dependencies {
     val kotlinVersion: String by System.getProperties()
-    val paperApiVersion: String by project
+    val spigotApiVersion: String? by project
+    val paperApiVersion: String? by project
+    val bungeeApiVersion: String? by project
+    val velocityApiVersion: String? by project
 
     compileOnly(kotlin("stdlib", kotlinVersion))
-    compileOnly("io.papermc.paper", "paper-api", paperApiVersion)
+    compileOnly(kotlin("script-runtime", kotlinVersion))
+    if (!spigotApiVersion.isNullOrBlank()) compileOnly("org.spigotmc", "spigot-api", spigotApiVersion)
+    if (!paperApiVersion.isNullOrBlank()) compileOnly("io.papermc.paper", "paper-api", paperApiVersion)
+    if (!bungeeApiVersion.isNullOrBlank()) compileOnly("net.md-5", "bungeecord-api", bungeeApiVersion)
+    if (!velocityApiVersion.isNullOrBlank()) compileOnly("com.velocitypowered", "velocity-api", velocityApiVersion)
 }
 
 publishing {
@@ -52,6 +61,7 @@ publishing {
         }
     }
 }
+val jarTasks: MutableSet<TaskProvider<ShadowJar>> = mutableSetOf()
 
 tasks {
     // Write Properties into plugin.yml
@@ -62,8 +72,8 @@ tasks {
         val apiVersion =
             "(\\d+\\.\\d+){1}(\\.\\d+)?".toRegex().find(project.properties["paperApiVersion"] as String)!!.value
         val pluginDescription: String by project
-        val pluginDependencies =
-            "\n  - KotlinProvider${getAsYamlList(project.properties["pluginDependencies"])}"
+        val pluginDependencies = getAsYamlList(project.properties["pluginDependencies"])
+        val pluginSoftDependencies = getAsYamlList(project.properties["pluginSoftdependencies"])
         val authors: String = getAsYamlList(project.properties["authors"])
 
         val props: LinkedHashMap<String, String> = linkedMapOf(
@@ -73,6 +83,7 @@ tasks {
             "plugin_main_class" to mainClass,
             "plugin_api_version" to apiVersion,
             "plugin_dependencies" to pluginDependencies,
+            "plugin_softdependencies" to pluginSoftDependencies,
             "plugin_authors" to authors
         )
 
@@ -87,8 +98,10 @@ tasks {
         configurations = listOf(project.configurations.implementation.get())
     }
 
+    getJarTaskExcludes().forEach{ (name, excludes) -> registerShadowJarTask(name, excludes) }
+
     build {
-        dependsOn(shadowJar)
+        jarTasks.forEach(this::dependsOn)
     }
 
     create("copyPluginToServer") {
@@ -160,6 +173,65 @@ tasks {
         kotlinOptions.jvmTarget = javaVersion.toString()
     }
 }
+
+fun getJarTaskExcludes(): Map<String, Set<String>> {
+    val workingPackage = "${project.group.toString().replace('.', '/')}/${project.name.toLowerCaseAsciiOnly().replace("""[^\w\d]""".toRegex(), "")}"
+
+    val enableSpigot: Boolean = File(projectDir, "src/main/kotlin/$workingPackage/spigot").exists()
+    val enablePaper: Boolean = File(projectDir, "src/main/kotlin/$workingPackage/paper").exists()
+    val enableBungee: Boolean = File(projectDir, "src/main/kotlin/$workingPackage/bungee").exists()
+    val enableVelocity: Boolean = File(projectDir, "src/main/kotlin/$workingPackage/velocity").exists()
+    val enableDependency: String by project
+
+    val jarTaskExcludes: MutableMap<String, Set<String>> = mutableMapOf()
+
+    if (enableSpigot) jarTaskExcludes["spigot"] = setOf(
+        "$workingPackage/spigot/**",
+        "bungee.yml",
+        "velocity-plugin.json"
+    )
+    if (enablePaper) jarTaskExcludes["paper"] = setOf(
+        "$workingPackage/paper/**",
+        "bungee.yml",
+        "velocity-plugin.json"
+    )
+    if (enableBungee) jarTaskExcludes["bungee"] = setOf(
+        "$workingPackage/bungee/**",
+        "plugin.yml",
+        "velocity-plugin.json"
+    )
+    if (enableVelocity) jarTaskExcludes["velocity"] =
+        setOf(
+            "$workingPackage/velocity/**",
+            "plugin.yml",
+            "bungee.yml"
+        )
+    if (enableDependency.toBoolean()) jarTaskExcludes["dependency"] = setOf(
+        "$workingPackage/**",
+        "plugin.yml",
+        "bungee.yml",
+        "velocity-plugin.json"
+    )
+
+    return jarTaskExcludes
+}
+
+fun registerShadowJarTask(classifier: String, excludes: Set<String>) {
+    jarTasks.add(tasks.register<ShadowJar>("${classifier}Jar") {
+        group = "plugin"
+        enabled = true
+
+        archiveClassifier.set("")
+        configurations = listOf(project.configurations.implementation.get())
+
+        archiveClassifier.set(classifier)
+
+        from(sourceSets.main.get().output) {
+            exclude(excludes)
+        }
+    })
+}
+
 
 fun getAsYamlList(commaSeparatedList: Any?): String {
     if (commaSeparatedList is String && commaSeparatedList.isNotBlank()) {
