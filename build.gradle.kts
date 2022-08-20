@@ -98,7 +98,7 @@ tasks {
         configurations = listOf(project.configurations.implementation.get())
     }
 
-    getJarTaskExcludes().forEach{ (name, excludes) -> registerShadowJarTask(name, excludes) }
+    getJarTaskExcludes().forEach { (name, excludes) -> registerShadowJarTask(name, excludes) }
 
     build {
         jarTasks.forEach(this::dependsOn)
@@ -133,27 +133,32 @@ tasks {
 
     create<Copy>("generateIntelliJRunConfig") {
         group = "plugin"
-        enabled = true
+        enabled = false
 
         from("./runConfigs")
         destinationDir = File("./.idea/runConfigurations")
         include("intellij.xml")
 
-        val serverPath: String by project
-        enabled = serverPath.isNotBlank()
+        val serverPath: String? by project
 
-        val paperFile: File? =
-            File(serverPath).listFiles()?.filter { it.name.matches("paper.*\\.jar".toRegex()) }?.get(0)
-        enabled = paperFile != null
+        serverPath?.let { path ->
+            if (path.isNotBlank() && File(path).exists()) {
 
-        if (paperFile != null && paperFile.exists()) {
-            val props: LinkedHashMap<String, String> = linkedMapOf(
-                "server_path" to File(serverPath).absolutePath,
-                "project_dir" to "\$PROJECT_DIR\$"
-            )
+                val paperFile: File? =
+                    File(path).listFiles()?.filter { it.name.matches("paper.*\\.jar".toRegex()) }?.get(0)
 
-            filesMatching("intellij.xml") {
-                expand(props)
+                if (paperFile != null && paperFile.exists()) {
+                    val props: LinkedHashMap<String, String> = linkedMapOf(
+                        "server_path" to File(path).absolutePath,
+                        "project_dir" to "\$PROJECT_DIR\$"
+                    )
+
+                    filesMatching("intellij.xml") {
+                        expand(props)
+                    }
+
+                    enabled = true
+                }
             }
         }
     }
@@ -175,7 +180,9 @@ tasks {
 }
 
 fun getJarTaskExcludes(): Map<String, Set<String>> {
-    val workingPackage = "${project.group.toString().replace('.', '/')}/${project.name.toLowerCaseAsciiOnly().replace("""[^\w\d]""".toRegex(), "")}"
+    val workingPackage = "${project.group.toString().replace('.', '/')}/${
+        project.name.toLowerCaseAsciiOnly().replace("""[^\w\d]""".toRegex(), "")
+    }"
 
     val enableSpigot: Boolean = File(projectDir, "src/main/kotlin/$workingPackage/spigot").exists()
     val enablePaper: Boolean = File(projectDir, "src/main/kotlin/$workingPackage/paper").exists()
