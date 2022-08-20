@@ -92,11 +92,11 @@ tasks {
         }
     }
 
-    shadowJar {
-        archiveClassifier.set("")
-        project.configurations.implementation.get().isCanBeResolved = true
-        configurations = listOf(project.configurations.implementation.get())
+    jar {
+        enabled = false
     }
+
+    project.configurations.implementation.get().isCanBeResolved = true
 
     getJarTaskExcludes().forEach { (name, excludes) -> registerShadowJarTask(name, excludes) }
 
