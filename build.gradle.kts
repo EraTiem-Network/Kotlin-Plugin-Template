@@ -213,7 +213,7 @@ fun getJarTaskExcludes(): Map<String, Set<String>> {
             "plugin.yml",
             "bungee.yml"
         )
-    if (enableDependency.toBoolean()) jarTaskExcludes["dependency"] = setOf(
+    if (enableDependency.toBoolean()) jarTaskExcludes[""] = setOf(
         "$workingPackage/**",
         "plugin.yml",
         "bungee.yml",
