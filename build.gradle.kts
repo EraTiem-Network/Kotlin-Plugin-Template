@@ -39,28 +39,6 @@ dependencies {
     if (!velocityApiVersion.isNullOrBlank()) compileOnly("com.velocitypowered", "velocity-api", velocityApiVersion)
 }
 
-publishing {
-    publications {
-        create<MavenPublication>("maven-java") {
-            groupId = project.group.toString()
-            artifactId = project.name.toLowerCase()
-            version = project.version.toString()
-
-            from(components["java"])
-        }
-    }
-    repositories {
-        maven {
-            url = uri(
-                "https://artifactory.bit-build.de/artifactory/eratiem"
-                        + (if (project.version.toString().contains("SNAPSHOT"))
-                    "-snapshots" else "")
-            )
-
-            bitBuildCredentials(this)
-        }
-    }
-}
 val jarTasks: MutableSet<TaskProvider<ShadowJar>> = mutableSetOf()
 
 tasks {
@@ -221,6 +199,29 @@ fun getJarTaskExcludes(): Map<String, Set<String>> {
     )
 
     return jarTaskExcludes
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven-java") {
+            groupId = project.group.toString()
+            artifactId = project.name.toLowerCase()
+            version = project.version.toString()
+
+            jarTasks.forEach(this::artifact)
+        }
+    }
+    repositories {
+        maven {
+            url = uri(
+                "https://artifactory.bit-build.de/artifactory/eratiem"
+                        + (if (project.version.toString().contains("SNAPSHOT"))
+                    "-snapshots" else "")
+            )
+
+            bitBuildCredentials(this)
+        }
+    }
 }
 
 fun registerShadowJarTask(classifier: String, excludes: Set<String>) {
