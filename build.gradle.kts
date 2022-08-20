@@ -175,22 +175,30 @@ fun getJarTaskExcludes(): Map<String, Set<String>> {
     val jarTaskExcludes: MutableMap<String, Set<String>> = mutableMapOf()
 
     if (enableSpigot) jarTaskExcludes["spigot"] = setOf(
-        "$workingPackage/spigot/**",
+        "$workingPackage/paper/**",
+        "$workingPackage/bungee/**",
+        "$workingPackage/velociy/**",
         "bungee.yml",
         "velocity-plugin.json"
     )
     if (enablePaper) jarTaskExcludes["paper"] = setOf(
-        "$workingPackage/paper/**",
+        "$workingPackage/spigot/**",
+        "$workingPackage/bungee/**",
+        "$workingPackage/velocity/**",
         "bungee.yml",
         "velocity-plugin.json"
     )
     if (enableBungee) jarTaskExcludes["bungee"] = setOf(
-        "$workingPackage/bungee/**",
+        "$workingPackage/spigot/**",
+        "$workingPackage/paper/**",
+        "$workingPackage/velocity/**",
         "plugin.yml",
         "velocity-plugin.json"
     )
     if (enableVelocity) jarTaskExcludes["velocity"] = setOf(
-        "$workingPackage/velocity/**",
+        "$workingPackage/spigot/**",
+        "$workingPackage/paper/**",
+        "$workingPackage/bungee/**",
         "plugin.yml",
         "bungee.yml"
     )
