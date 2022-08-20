@@ -87,7 +87,7 @@ tasks {
             "plugin_authors" to authors
         )
 
-        filesMatching("plugin.yml") {
+        filesMatching(setOf("plugin.yml", "bungee.yml")) {
             expand(props)
         }
     }
