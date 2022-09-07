@@ -237,6 +237,11 @@ publishing {
 
             bitBuildCredentials(this)
         }
+        maven {
+            url = uri("https://maven.pkg.github.com/EraTiem-Network/${project.name}")
+
+            githubPackageCredentials(this)
+        }
     }
 }
 
@@ -273,5 +278,12 @@ fun bitBuildCredentials(maven: MavenArtifactRepository) {
     maven.credentials {
         username = System.getenv("ARTIFACTORY_USER")
         password = System.getenv("ARTIFACTORY_PASS")
+    }
+}
+
+fun githubPackageCredentials(maven: MavenArtifactRepository) {
+    maven.credentials {
+        username = System.getenv("GITHUB_USER")
+        password = System.getenv("GITHUB_TOKEN")
     }
 }
