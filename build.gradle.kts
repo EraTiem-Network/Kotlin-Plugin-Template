@@ -19,7 +19,7 @@ version = "0.1-SNAPSHOT"
 
 repositories {
     maven {
-        url = uri("https://artifactory.bit-build.de/artifactory/all")
+        url = uri("https://artifactory.bit-build.de/artifactory/public")
 
         bitBuildCredentials(this)
     }
