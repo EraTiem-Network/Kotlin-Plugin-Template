@@ -28,21 +28,20 @@ repositories {
 
 dependencies {
     val kotlinVersion: String by System.getProperties()
+    val spigotApiDependency: String? by project
+    val paperApiDependency: String? by project
+    val bungeeApiDependency: String? by project
+    val velocityApiDependency: String? by project
     val eraloggerVersion: String by project
-    val spigotApiVersion: String? by project
-    val paperApiVersion: String? by project
-    val bungeeApiVersion: String? by project
-    val velocityApiVersion: String? by project
 
-    compileOnly(kotlin("stdlib", kotlinVersion))
-    compileOnly("net.eratiem", "eralogger", eraloggerVersion)
-
-    if (!spigotApiVersion.isNullOrBlank()) compileOnly("org.spigotmc", "spigot-api", spigotApiVersion)
-    if (!paperApiVersion.isNullOrBlank()) compileOnly("io.papermc.paper", "paper-api", paperApiVersion)
-    if (!bungeeApiVersion.isNullOrBlank()) compileOnly("net.md-5", "bungeecord-api", bungeeApiVersion)
-    if (!velocityApiVersion.isNullOrBlank()) {
-        compileOnly("com.velocitypowered", "velocity-api", velocityApiVersion)
-        kapt("com.velocitypowered", "velocity-api", velocityApiVersion)
+    if (kotlinVersion.isNotBlank()) compileOnly(kotlin("stdlib", kotlinVersion))
+    if (eraloggerVersion.isNotBlank()) compileOnly("net.eratiem", "eralogger", eraloggerVersion)
+    if (!spigotApiDependency.isNullOrBlank()) compileOnly("org.spigotmc", "spigot-api", spigotApiDependency)
+    if (!paperApiDependency.isNullOrBlank()) compileOnly("io.papermc.paper", "paper-api", paperApiDependency)
+    if (!bungeeApiDependency.isNullOrBlank()) compileOnly("net.md-5", "bungeecord-api", bungeeApiDependency)
+    if (!velocityApiDependency.isNullOrBlank()) {
+        compileOnly("com.velocitypowered", "velocity-api", velocityApiDependency)
+        kapt("com.velocitypowered", "velocity-api", velocityApiDependency)
     }
 }
 
@@ -72,25 +71,9 @@ tasks {
             "plugin_authors" to authors
         )
 
-
-        val apiRegex: Regex = "(\\d+\\.\\d+){1}(\\.\\d+)?".toRegex()
-        filesMatching("plugin.yml") {
-            var apiVersion =
-                (project.properties["paperApiVersion"]?.takeUnless { (it as String).isBlank() }
-                    ?: project.properties["spigotApiVersion"]?.takeUnless { (it as String).isBlank() }
-                    ?: "") as String
-            if (apiRegex.containsMatchIn(apiVersion)) apiVersion = apiRegex.find(apiVersion)?.value ?: ""
-
-            props["plugin_api_version"] = apiVersion
-
-            expand(props)
-        }
-        filesMatching("bungee.yml") {
-            var apiVersion =
-                (project.properties["bungeeApiVersion"]?.takeUnless { (it as String).isBlank() } ?: "") as String
-            if (apiRegex.containsMatchIn(apiVersion)) apiVersion = apiRegex.find(apiVersion)?.value ?: ""
-
-            props["plugin_api_version"] = apiVersion
+        filesMatching(setOf("plugin.yml", "bungee.yml")) {
+            val api = if (this.sourceName.contains("plugin")) "pluginApiVersion" else "bungeeApiVersion"
+            props["plugin_api_version"] = (project.properties[api] as String?) ?: ""
 
             expand(props)
         }
