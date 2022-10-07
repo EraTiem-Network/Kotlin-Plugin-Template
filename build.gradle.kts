@@ -18,12 +18,7 @@ group = "net.eratiem"
 version = "0.1-SNAPSHOT"
 
 repositories {
-    maven {
-        url = uri("https://artifactory.bit-build.de/artifactory/public")
-
-        // Only needed for local repos that need authentication (for example snapshot-repos)
-        bitBuildCredentials(this)
-    }
+    bitBuildArtifactory()
 }
 
 dependencies {
@@ -243,20 +238,8 @@ publishing {
         }
     }
     repositories {
-        maven {
-            url = uri(
-                "https://artifactory.bit-build.de/artifactory/eratiem"
-                        + (if (project.version.toString().contains("SNAPSHOT"))
-                    "-snapshots" else "")
-            )
-
-            bitBuildCredentials(this)
-        }
-        maven {
-            url = uri("https://maven.pkg.github.com/EraTiem-Network/${project.name}")
-
-            githubPackageCredentials(this)
-        }
+        bitBuildArtifactory(publish = true)
+        githubPackages(true)
     }
 }
 
@@ -295,22 +278,43 @@ fun getAsYamlList(commaSeparatedList: Any?): String {
     return ""
 }
 
-/**
- * Get credentials for Bit-Build's Artifactory (https://artifactory.bit-build.de)
- */
-fun bitBuildCredentials(maven: MavenArtifactRepository) {
-    maven.credentials {
-        username = System.getenv("ARTIFACTORY_USER")
-        password = System.getenv("ARTIFACTORY_PASS")
+fun RepositoryHandler.bitBuildArtifactory(
+    useCredentials: Boolean = false, publish: Boolean = false
+): MavenArtifactRepository {
+    val url = if (publish) {
+        "https://artifactory.bit-build.de/artifactory/eratiem${
+            if (project.version.toString().contains("SNAPSHOT")) "-snapshots" else ""
+        }"
+    } else {
+        "https://artifactory.bit-build.de/artifactory/public"
     }
+
+    return if (publish || useCredentials) createMavenRepo(url, "ARTIFACTORY_USER", "ARTIFACTORY_PASS")
+    else createMavenRepo(url)
 }
 
-/**
- * Get credentials for Github-Packages
- */
-fun githubPackageCredentials(maven: MavenArtifactRepository) {
-    maven.credentials {
-        username = System.getenv("GITHUB_USER")
-        password = System.getenv("GITHUB_TOKEN")
+fun RepositoryHandler.githubPackages(useCredentials: Boolean = true): MavenArtifactRepository {
+    val url = "https://maven.pkg.github.com/EraTiem-Network/${project.name}"
+
+    return if (useCredentials) createMavenRepo(url, "GITHUB_USER", "GITHUB_TOKEN")
+    else createMavenRepo(url)
+}
+
+fun RepositoryHandler.createMavenRepo(url: String) = maven {
+    this.url = uri(url)
+}
+
+fun RepositoryHandler.createMavenRepo(url: String, userEnv: String, passEnv: String) = maven {
+    this.url = uri(url)
+    val user: String? = System.getenv(userEnv)
+    val pass: String? = System.getenv(passEnv)
+
+    if (user == null || pass == null) {
+        logger.error("The environment variable $userEnv or $passEnv does not exist or is null!")
+    }
+
+    credentials {
+        username = System.getenv(userEnv)
+        password = System.getenv(passEnv)
     }
 }
