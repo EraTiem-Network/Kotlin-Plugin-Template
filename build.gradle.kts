@@ -4,12 +4,8 @@ import org.jetbrains.kotlin.util.capitalizeDecapitalize.toLowerCaseAsciiOnly
 import java.util.stream.Collectors
 
 plugins {
-    val kotlinVersion: String by System.getProperties()
-    val shadowVersion: String by System.getProperties()
-
-    kotlin("jvm").version(kotlinVersion)
-    kotlin("kapt").version(kotlinVersion)
-    id("com.github.johnrengelman.shadow").version(shadowVersion)
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.shadow)
 
     id("maven-publish")
 }
@@ -17,27 +13,23 @@ plugins {
 group = "net.eratiem"
 version = "0.1-SNAPSHOT"
 
-repositories {
-    bitBuildArtifactory()
+subprojects {
+    repositories {
+        bitBuildArtifactory()
+    }
+
+    apply(plugin = rootProject.libs.plugins.kotlin.jvm.get().pluginId)
+    apply(plugin = rootProject.libs.plugins.shadow.get().pluginId)
+
+    dependencies {
+        compileOnly(rootProject.libs.kotlin.gradleplugin)
+        compileOnly(libs.kotlin.stdlib)
+    }
 }
 
-dependencies {
-    val kotlinVersion: String by System.getProperties()
-    val spigotApiDependency: String? by project
-    val paperApiDependency: String? by project
-    val bungeeApiDependency: String? by project
-    val velocityApiDependency: String? by project
-    val eraloggerVersion: String by project
 
-    if (kotlinVersion.isNotBlank()) compileOnly(kotlin("stdlib", kotlinVersion))
-    if (eraloggerVersion.isNotBlank()) compileOnly("net.eratiem", "eralogger", eraloggerVersion)
-    if (!spigotApiDependency.isNullOrBlank()) compileOnly("org.spigotmc", "spigot-api", spigotApiDependency)
-    if (!paperApiDependency.isNullOrBlank()) compileOnly("io.papermc.paper", "paper-api", paperApiDependency)
-    if (!bungeeApiDependency.isNullOrBlank()) compileOnly("net.md-5", "bungeecord-api", bungeeApiDependency)
-    if (!velocityApiDependency.isNullOrBlank()) {
-        compileOnly("com.velocitypowered", "velocity-api", velocityApiDependency)
-        kapt("com.velocitypowered", "velocity-api", velocityApiDependency)
-    }
+repositories {
+    bitBuildArtifactory()
 }
 
 val jarTasks: MutableSet<TaskProvider<ShadowJar>> = mutableSetOf()
