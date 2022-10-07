@@ -1,9 +1,0 @@
-name: $plugin_name
-description: $plugin_description
-version: $plugin_version
-main: $plugin_main_class
-api-version: $plugin_api_version
-prefix: $plugin_name
-depend: $plugin_dependencies
-softDepends: $plugin_softdependencies
-authors: $plugin_authors
