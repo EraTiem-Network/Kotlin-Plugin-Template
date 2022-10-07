@@ -23,7 +23,7 @@ subprojects {
 
     dependencies {
         compileOnly(rootProject.libs.kotlin.gradleplugin)
-        compileOnly(libs.kotlin.stdlib)
+        compileOnly(rootProject.libs.kotlin.stdlib)
     }
 }
 
