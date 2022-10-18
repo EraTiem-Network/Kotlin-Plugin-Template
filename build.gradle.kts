@@ -1,5 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.util.capitalizeDecapitalize.toUpperCaseAsciiOnly
 import java.util.stream.Collectors
 
 plugins {
@@ -27,6 +28,9 @@ subprojects {
     }
 
     dependencies {
+        val tools: Project? = findProject(":tools")
+        if (tools != null && tools != project) implementation(project(":tools"))
+
         compileOnly(rootProject.libs.kotlin.gradleplugin)
         compileOnly(rootProject.libs.kotlin.stdlib)
     }
@@ -34,7 +38,7 @@ subprojects {
     tasks {
         project.configurations.implementation.get().isCanBeResolved = true
 
-        register<ShadowJar>("${project.name}Jar") {
+        val shadowJarTask = register<ShadowJar>("${project.name}Jar") {
             group = "plugin"
             enabled = true
 
@@ -42,35 +46,44 @@ subprojects {
 
             archiveBaseName.set(rootProject.name)
             archiveClassifier.set(project.name)
+
+        }
+        if (project.name == "tools")
+            rootProject.ext["toolsArtifact"] = shadowJarTask
+
+        build {
+            dependsOn(shadowJarTask)
         }
 
         /**
-         * Copy Task to fill plugin.yml and bungee.yml
+         * Copy Task to fill plugin.yml
          */
-        withType<Copy> {
-            outputs.upToDateWhen { false }
+        if (project.name !in arrayOf("tools", "velocity")) {
+            withType<Copy> {
+                outputs.upToDateWhen { false }
 
-            val mainClass = "${project.group}.${project.name.toLowerCase()}.${project.properties["mainClass"]}"
-            val pluginDescription: String by project
-            val pluginDependencies = getAsYamlList(project.properties["pluginDependencies"])
-            val pluginSoftDependencies = getAsYamlList(project.properties["pluginSoftdependencies"])
-            val authors: String = getAsYamlList(project.properties["authors"])
+                val mainClass = "${project.group}.${project.name.toLowerCase()}.${project.properties["mainClass"]}"
+                val pluginDescription: String by project
+                val pluginDependencies = getAsYamlList(project.properties["pluginDependencies"])
+                val pluginSoftDependencies = getAsYamlList(project.properties["pluginSoftdependencies"])
+                val authors: String = getAsYamlList(project.properties["authors"])
 
-            val props: LinkedHashMap<String, String> = linkedMapOf(
-                "plugin_name" to project.name,
-                "plugin_description" to pluginDescription,
-                "plugin_version" to version.toString(),
-                "plugin_main_class" to mainClass,
-                "plugin_dependencies" to pluginDependencies,
-                "plugin_softdependencies" to pluginSoftDependencies,
-                "plugin_authors" to authors
-            )
+                val props: LinkedHashMap<String, String> = linkedMapOf(
+                    "plugin_name" to project.name,
+                    "plugin_description" to pluginDescription,
+                    "plugin_version" to version.toString(),
+                    "plugin_main_class" to mainClass,
+                    "plugin_dependencies" to pluginDependencies,
+                    "plugin_softdependencies" to pluginSoftDependencies,
+                    "plugin_authors" to authors
+                )
 
-            filesMatching(setOf("plugin.yml", "bungee.yml")) {
-                val api = if (this.sourceName.contains("plugin")) "pluginApiVersion" else "bungeeApiVersion"
-                props["plugin_api_version"] = (project.properties[api] as String?) ?: ""
+                filesMatching("plugin.yml") {
+                    val api = if (this.sourceName.contains("plugin")) "pluginApiVersion" else "bungeeApiVersion"
+                    props["plugin_api_version"] = (project.properties[api] as String?) ?: ""
 
-                expand(props)
+                    expand(props)
+                }
             }
         }
 
@@ -117,101 +130,43 @@ tasks {
     jar {
         enabled = false
     }
-
-    /**
-     * Create task to copy plugin to paper server
-     */
-    create("copyPluginToServer") {
-        dependsOn(build)
-
-        group = "plugin"
-        enabled = false
-
-        outputs.upToDateWhen { false }
-
-        val serverPath: String by project
-
-        if (serverPath.isNotBlank() && File(serverPath).exists()) {
-            val libsDir = File("${project.buildDir.absolutePath}${File.separator}libs")
-            val destinationFile =
-                File("$serverPath${File.separator}plugins${File.separator}${rootProject.name.toLowerCase()}.jar")
-            val jarFiles: List<File>? = libsDir.listFiles()?.filter { it.extension == "jar" }
-
-            if (jarFiles?.size == 1) {
-                jarFiles[0].copyTo(
-                    destinationFile,
-                    true
-                )
-
-                enabled = destinationFile.exists()
-            }
-        }
-    }
-
-    /**
-     * Create task to run paper server
-     */
-    create<Copy>("generateIntelliJRunConfig") {
-        group = "plugin"
-        enabled = false
-
-        from("./runConfigs")
-        destinationDir = File("./.idea/runConfigurations")
-        include("intellij.xml")
-
-        val serverPath: String? by project
-
-        serverPath?.let { path ->
-            if (path.isNotBlank() && File(path).exists()) {
-
-                val paperFile: File? =
-                    File(path).listFiles()?.filter { it.name.matches("paper.*\\.jar".toRegex()) }?.get(0)
-
-                if (paperFile != null && paperFile.exists()) {
-                    val props: LinkedHashMap<String, String> = linkedMapOf(
-                        "server_path" to File(path).absolutePath,
-                        "project_dir" to "\$PROJECT_DIR\$"
-                    )
-
-                    filesMatching("intellij.xml") {
-                        expand(props)
-                    }
-
-                    enabled = true
-                }
-            }
-        }
-    }
 }
 
 fun RepositoryHandler.bitBuildArtifactory(
     useCredentials: Boolean = false, publish: Boolean = false
 ): MavenArtifactRepository {
-    val url = if (publish) {
-        "https://artifactory.bit-build.de/artifactory/eratiem${
-            if (project.version.toString().contains("SNAPSHOT")) "-snapshots" else ""
-        }"
+    val url: String
+    val name: String
+    if (publish) {
+        val isSnapshot = project.version.toString().toUpperCaseAsciiOnly().contains("SNAPSHOT")
+        url = "https://artifactory.bit-build.de/artifactory/eratiem${if (isSnapshot) "-snapshots" else ""}"
+        name = "BitBuildArtifactoryEraTiem${if (isSnapshot) "Snapshots" else ""}"
+
     } else {
-        "https://artifactory.bit-build.de/artifactory/public"
+        url = "https://artifactory.bit-build.de/artifactory/public"
+        name = "BitBuildArtifactoryPublic"
     }
 
-    return if (publish || useCredentials) createMavenRepo(url, "ARTIFACTORY_USER", "ARTIFACTORY_PASS")
-    else createMavenRepo(url)
+    return if (publish || useCredentials) createMavenRepo(url, name,"ARTIFACTORY_USER", "ARTIFACTORY_TOKEN")
+    else createMavenRepo(url, name)
 }
 
 fun RepositoryHandler.githubPackages(useCredentials: Boolean = true): MavenArtifactRepository {
     val url = "https://maven.pkg.github.com/EraTiem-Network/${project.name}"
+    val name = "GitHub"
 
-    return if (useCredentials) createMavenRepo(url, "GITHUB_USER", "GITHUB_TOKEN")
-    else createMavenRepo(url)
+    return if (useCredentials) createMavenRepo(url, name, "GITHUB_USER", "GITHUB_TOKEN")
+    else createMavenRepo(url, name)
 }
 
-fun RepositoryHandler.createMavenRepo(url: String) = maven {
+fun RepositoryHandler.createMavenRepo(url: String, name: String) = maven {
     this.url = uri(url)
+    this.name = name
 }
 
-fun RepositoryHandler.createMavenRepo(url: String, userEnv: String, passEnv: String) = maven {
+fun RepositoryHandler.createMavenRepo(url: String, name: String, userEnv: String, passEnv: String) = maven {
     this.url = uri(url)
+    this.name = name
     val user: String? = System.getenv(userEnv)
     val pass: String? = System.getenv(passEnv)
 
