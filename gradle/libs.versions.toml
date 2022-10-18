@@ -1,0 +1,32 @@
+[versions]
+kotlin = "1.7.20"
+shadow = "7.1.2"
+
+# Minecraft Software
+spigot = "1.19.2-R0.1-SNAPSHOT"
+paper = "1.19.2-R0.1-SNAPSHOT"
+bungeecord = "1.19-R0.1-SNAPSHOT"
+velocity = "3.1.1"
+
+# Plugin Values
+plugin-spigot = "1.19"
+plugin-paper = "1.19"
+plugin-bungeecord = "1.19"
+
+[libraries]
+kotlin-gradleplugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+
+# Minecraft Software Dependencies
+minecraft-server-spigot = { group = "org.spigotmc", name = "spigot-api", version.ref = "spigot" }
+minecraft-server-paper = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" }
+minecraft-proxy-bungeecord = { group = "net.md-5", name = "bungeecord-api", version.ref = "bungeecord" }
+minecraft-proxy-velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
+
+# Minecraft Plugin Dependencies
+minecraft-plugin-eralogger = { group = "net.eratiem", name = "eralogger", version = "1.1.0" }
+
+[plugins]
+shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
