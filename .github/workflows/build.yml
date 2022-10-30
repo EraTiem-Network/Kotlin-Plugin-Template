@@ -19,7 +19,7 @@ jobs:
       paper: ${{ steps.check_modules.outputs.paper }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@b3.0.2
+        uses: actions/checkout@v3.0.2
         with:
           fetch-depth: 2
       - name: Check Modules
@@ -42,7 +42,7 @@ jobs:
   build-bungeecord:
     name: Build and collect Bungeecord
     needs: check-if-modules-exist
-    if: ${{ jobs.check-if-modules-exist.outputs.bungeecord }}
+    if: ${{ needs.check-if-modules-exist.outputs.bungeecord }}
     runs-on: self-hosted
     steps:
       - name: Build
@@ -55,9 +55,9 @@ jobs:
           name: Bungeecord
           path: bungeecord/build/libs/*bungeecord.jar
   build-velocity:
-    name: Build Velocity
+    name: Build and collect Velocity
     needs: check-if-modules-exist
-    if: ${{ jobs.check-if-modules-exist.outputs.velocity }}
+    if: ${{ needs.check-if-modules-exist.outputs.velocity }}
     runs-on: self-hosted
     steps:
       - name: Build
@@ -70,9 +70,9 @@ jobs:
           name: Velocity
           path: velocity/build/libs/*velocity.jar
   build-spigot:
-    name: Build Spigot
+    name: Build and collect Spigot
     needs: check-if-modules-exist
-    if: ${{ jobs.check-if-modules-exist.outputs.spigot }}
+    if: ${{ needs.check-if-modules-exist.outputs.spigot }}
     runs-on: self-hosted
     steps:
       - name: Build
@@ -85,9 +85,9 @@ jobs:
           name: Spigot
           path: spigot/build/libs/*spigot.jar
   build-Paper:
-    name: Build Paper
+    name: Build and collect Paper
     needs: check-if-modules-exist
-    if: ${{ jobs.check-if-modules-exist.outputs.paper }}
+    if: ${{ needs.check-if-modules-exist.outputs.paper }}
     runs-on: self-hosted
     steps:
       - name: Build
