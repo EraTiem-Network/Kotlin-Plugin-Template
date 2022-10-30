@@ -45,6 +45,8 @@ jobs:
     if: ${{ needs.check-if-modules-exist.outputs.bungeecord }}
     runs-on: self-hosted
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
       - name: Build
         uses: ./.github/workflows/build-module.yml
         with:
@@ -60,6 +62,8 @@ jobs:
     if: ${{ needs.check-if-modules-exist.outputs.velocity }}
     runs-on: self-hosted
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
       - name: Build
         uses: ./.github/workflows/build-module.yml
         with:
@@ -75,6 +79,8 @@ jobs:
     if: ${{ needs.check-if-modules-exist.outputs.spigot }}
     runs-on: self-hosted
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
       - name: Build
         uses: ./.github/workflows/build-module.yml
         with:
@@ -90,6 +96,8 @@ jobs:
     if: ${{ needs.check-if-modules-exist.outputs.paper }}
     runs-on: self-hosted
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3.1.0
       - name: Build
         uses: ./.github/workflows/build-module.yml
         with:
