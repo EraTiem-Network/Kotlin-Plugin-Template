@@ -19,7 +19,7 @@ jobs:
       paper: ${{ steps.check_modules.outputs.paper }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3.0.2
+        uses: actions/checkout@v3.1.0
         with:
           fetch-depth: 2
       - name: Check Modules
@@ -50,7 +50,7 @@ jobs:
         with:
           module: bungeecord
       - name: Collect
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.1
         with:
           name: Bungeecord
           path: bungeecord/build/libs/*bungeecord.jar
@@ -65,7 +65,7 @@ jobs:
         with:
           module: velocity
       - name: Collect
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.1
         with:
           name: Velocity
           path: velocity/build/libs/*velocity.jar
@@ -80,7 +80,7 @@ jobs:
         with:
           module: spigot
       - name: Collect
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.1
         with:
           name: Spigot
           path: spigot/build/libs/*spigot.jar
@@ -95,7 +95,7 @@ jobs:
         with:
           module: paper
       - name: Collect
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v3.1.1
         with:
           name: Paper
           path: paper/build/libs/*paper.jar
