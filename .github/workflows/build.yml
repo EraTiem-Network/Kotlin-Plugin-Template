@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   check-if-modules-exist:
-    name: Checke Module Existence
+    name: Check Module existence
     runs-on: self-hosted
     outputs:
       bungeecord: ${{ steps.check_modules.outputs.bungeecord }}
@@ -42,7 +42,7 @@ jobs:
   build-bungeecord:
     name: Build and collect Bungeecord
     needs: check-if-modules-exist
-    if: ${{ needs.check-if-modules-exist.outputs.bungeecord }}
+    if: needs.check-if-modules-exist.outputs.bungeecord == 'true'
     runs-on: self-hosted
     steps:
       - name: Checkout
@@ -59,7 +59,7 @@ jobs:
   build-velocity:
     name: Build and collect Velocity
     needs: check-if-modules-exist
-    if: ${{ needs.check-if-modules-exist.outputs.velocity }}
+    if: needs.check-if-modules-exist.outputs.velocity == 'true'
     runs-on: self-hosted
     steps:
       - name: Checkout
@@ -76,7 +76,7 @@ jobs:
   build-spigot:
     name: Build and collect Spigot
     needs: check-if-modules-exist
-    if: ${{ needs.check-if-modules-exist.outputs.spigot }}
+    if: needs.check-if-modules-exist.outputs.spigot == 'true'
     runs-on: self-hosted
     steps:
       - name: Checkout
@@ -93,7 +93,7 @@ jobs:
   build-Paper:
     name: Build and collect Paper
     needs: check-if-modules-exist
-    if: ${{ needs.check-if-modules-exist.outputs.paper }}
+    if: needs.check-if-modules-exist.outputs.paper == 'true'
     runs-on: self-hosted
     steps:
       - name: Checkout
