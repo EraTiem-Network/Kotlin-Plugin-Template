@@ -1,0 +1,101 @@
+name: build
+on:
+  workflow_dispatch:
+  push:
+
+# This allows a subsequently queued workflow run to interrupt previous runs
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }}'
+  cancel-in-progress: true
+
+jobs:
+  check-if-modules-exist:
+    name: Checke Module Existence
+    runs-on: self-hosted
+    outputs:
+      bungeecord: ${{ steps.check_modules.outputs.bungeecord }}
+      velocity: ${{ steps.check_modules.outputs.velocity }}
+      spigot: ${{ steps.check_modules.outputs.spigot }}
+      paper: ${{ steps.check_modules.outputs.paper }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@b3.0.2
+        with:
+          fetch-depth: 2
+      - name: Check Modules
+        id: check_modules
+        run: |
+          function check_module {
+            echo $1
+            if [[ -d ./$1 ]]; then
+              echo "::set-output name=$1::true"
+            else
+              echo "::set-output name=$1::false"
+            fi
+          }
+          
+          check_module "bungeecord"
+          check_module "velocity"
+          check_module "spigot"
+          check_module "paper"
+
+  build-bungeecord:
+    name: Build and collect Bungeecord
+    needs: check-if-modules-exist
+    if: ${{ jobs.check-if-modules-exist.outputs.bungeecord }}
+    runs-on: self-hosted
+    steps:
+      - name: Build
+        uses: ./.github/workflows/build-module.yml
+        with:
+          module: bungeecord
+      - name: Collect
+        uses: actions/upload-artifact@v3
+        with:
+          name: Bungeecord
+          path: bungeecord/build/libs/*bungeecord.jar
+  build-velocity:
+    name: Build Velocity
+    needs: check-if-modules-exist
+    if: ${{ jobs.check-if-modules-exist.outputs.velocity }}
+    runs-on: self-hosted
+    steps:
+      - name: Build
+        uses: ./.github/workflows/build-module.yml
+        with:
+          module: velocity
+      - name: Collect
+        uses: actions/upload-artifact@v3
+        with:
+          name: Velocity
+          path: velocity/build/libs/*velocity.jar
+  build-spigot:
+    name: Build Spigot
+    needs: check-if-modules-exist
+    if: ${{ jobs.check-if-modules-exist.outputs.spigot }}
+    runs-on: self-hosted
+    steps:
+      - name: Build
+        uses: ./.github/workflows/build-module.yml
+        with:
+          module: spigot
+      - name: Collect
+        uses: actions/upload-artifact@v3
+        with:
+          name: Spigot
+          path: spigot/build/libs/*spigot.jar
+  build-Paper:
+    name: Build Paper
+    needs: check-if-modules-exist
+    if: ${{ jobs.check-if-modules-exist.outputs.paper }}
+    runs-on: self-hosted
+    steps:
+      - name: Build
+        uses: ./.github/workflows/build-module.yml
+        with:
+          module: paper
+      - name: Collect
+        uses: actions/upload-artifact@v3
+        with:
+          name: Paper
+          path: paper/build/libs/*paper.jar
