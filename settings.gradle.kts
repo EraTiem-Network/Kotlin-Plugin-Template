@@ -53,3 +53,11 @@ fun createModuleFolder(moduleName: String, moduleDir: File) {
         basePluginYAML.copyTo(modulePluginYAML)
     }
 }
+
+pluginManagement {
+    repositories {
+        maven {
+            url = uri("https://artifactory.bit-build.de/artifactory/public")
+        }
+    }
+}
