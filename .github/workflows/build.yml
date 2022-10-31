@@ -9,14 +9,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check-if-modules-exist:
+  check-modules:
     name: Check Module existence
     runs-on: self-hosted
     outputs:
-      bungeecord: ${{ steps.check_modules.outputs.bungeecord }}
-      velocity: ${{ steps.check_modules.outputs.velocity }}
-      spigot: ${{ steps.check_modules.outputs.spigot }}
-      paper: ${{ steps.check_modules.outputs.paper }}
+      matrix: ${{ steps.check_modules.outputs.matrix }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3.1.0
@@ -28,82 +25,46 @@ jobs:
           function check_module {
             echo $1
             if [ -d "./$1" ]; then
-              echo "$1=true" >> $GITHUB_OUTPUT
-            else
-              echo "$1=false" >> $GITHUB_OUTPUT
+              if [ ! -z "$MODULES" ]; then
+                MODULES="$MODULES, \"$1\""
+              else
+                MODULES="\"$1\""
+              fi
             fi
           }
+          
+          MODULES=""
           
           check_module "bungeecord"
           check_module "velocity"
           check_module "spigot"
           check_module "paper"
+          
+          echo "matrix={\"module\":[$MODULES]}"
+          echo "matrix={\"module\":[$MODULES]}" >> $GITHUB_OUTPUT
 
-  build-bungeecord:
-    name: Build and collect Bungeecord
-    needs: check-if-modules-exist
-    if: needs.check-if-modules-exist.outputs.bungeecord == 'true'
+  build:
+    name: Build and collect
+    needs: check-modules
+    if: needs.check-modules.outputs.modules != '{\"module\":[]}'
+    strategy:
+      max-parallel: 1
+      matrix: ${{ fromJSON(needs.check-modules.outputs.matrix) }}
     runs-on: self-hosted
     steps:
-      - name: Checkout
+      - name: Checkout Repo
         uses: actions/checkout@v3.1.0
-      - name: Build
-        uses: ./.github/workflows/build-module.yml
+      - name: Setup Java
+        uses: actions/setup-java@v3
         with:
-          module: bungeecord
+          distribution: temurin
+          java-version: 17
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      - name: Build
+        run: ./gradlew ${{ matrix.module }}:build
       - name: Collect
         uses: actions/upload-artifact@v3.1.1
         with:
-          name: Bungeecord
-          path: bungeecord/build/libs/*bungeecord.jar
-  build-velocity:
-    name: Build and collect Velocity
-    needs: check-if-modules-exist
-    if: needs.check-if-modules-exist.outputs.velocity == 'true'
-    runs-on: self-hosted
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3.1.0
-      - name: Build
-        uses: ./.github/workflows/build-module.yml
-        with:
-          module: velocity
-      - name: Collect
-        uses: actions/upload-artifact@v3.1.1
-        with:
-          name: Velocity
-          path: velocity/build/libs/*velocity.jar
-  build-spigot:
-    name: Build and collect Spigot
-    needs: check-if-modules-exist
-    if: needs.check-if-modules-exist.outputs.spigot == 'true'
-    runs-on: self-hosted
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3.1.0
-      - name: Build
-        uses: ./.github/workflows/build-module.yml
-        with:
-          module: spigot
-      - name: Collect
-        uses: actions/upload-artifact@v3.1.1
-        with:
-          name: Spigot
-          path: spigot/build/libs/*spigot.jar
-  build-Paper:
-    name: Build and collect Paper
-    needs: check-if-modules-exist
-    if: needs.check-if-modules-exist.outputs.paper == 'true'
-    runs-on: self-hosted
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3.1.0
-      - name: Build
-        uses: ./.github/workflows/build-module.yml
-        with:
-          module: paper
-      - name: Collect
-        uses: actions/upload-artifact@v3.1.1
-        with:
-          name: Paper
-          path: paper/build/libs/*paper.jar
+          name: ${{ matrix.module }}
+          path: ${{ matrix.module }}/build/libs/*${{ matrix.module }}.jar
