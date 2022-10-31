@@ -1,4 +1,4 @@
-name: build
+name: Build and collect modules
 on:
   workflow_dispatch:
   push:
@@ -10,7 +10,7 @@ concurrency:
 
 jobs:
   check-modules:
-    name: Check Module existence
+    name: Check module existence
     runs-on: self-hosted
     outputs:
       matrix: ${{ steps.check_modules.outputs.matrix }}
@@ -62,6 +62,11 @@ jobs:
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
       - name: Build
+        env:
+          ARTIFACTORY_USER: ${{ secrets.ARTIFACTORY_USER }}
+          ARTIFACTORY_TOKEN: ${{ secrets.ARTIFACTORY_TOKEN }}
+          GITHUB_USER: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew ${{ matrix.module }}:build
       - name: Collect
         uses: actions/upload-artifact@v3.1.1
