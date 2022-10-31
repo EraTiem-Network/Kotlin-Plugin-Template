@@ -46,7 +46,7 @@ jobs:
   build:
     name: Build and collect
     needs: check-modules
-    if: needs.check-modules.outputs.modules != '{\"module\":[]}'
+    if: needs.check-modules.outputs.modules != '{"module":[]}'
     strategy:
       max-parallel: 1
       matrix: ${{ fromJSON(needs.check-modules.outputs.matrix) }}
