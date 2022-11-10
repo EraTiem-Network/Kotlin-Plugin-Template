@@ -47,6 +47,7 @@ subprojects {
             archiveBaseName.set(rootProject.name)
             archiveClassifier.set(project.name)
 
+            from(this@subprojects.sourceSets.main.get().output)
         }
         if (project.name == "utils")
             rootProject.ext["utilsArtifact"] = shadowJarTask
