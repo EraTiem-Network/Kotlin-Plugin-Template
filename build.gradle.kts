@@ -28,8 +28,8 @@ subprojects {
     }
 
     dependencies {
-        val tools: Project? = findProject(":tools")
-        if (tools != null && tools != project) implementation(project(":tools"))
+        val utils: Project? = findProject(":tools")
+        if (utils != null && utils != project) implementation(project(":tools"))
 
         compileOnly(rootProject.libs.kotlin.gradleplugin)
         compileOnly(rootProject.libs.kotlin.stdlib)
@@ -48,8 +48,8 @@ subprojects {
             archiveClassifier.set(project.name)
 
         }
-        if (project.name == "tools")
-            rootProject.ext["toolsArtifact"] = shadowJarTask
+        if (project.name == "utils")
+            rootProject.ext["utilsArtifact"] = shadowJarTask
 
         build {
             dependsOn(shadowJarTask)
@@ -58,7 +58,7 @@ subprojects {
         /**
          * Copy Task to fill plugin.yml
          */
-        if (project.name !in arrayOf("tools", "velocity")) {
+        if (project.name !in arrayOf("utils", "velocity")) {
             withType<Copy> {
                 outputs.upToDateWhen { false }
 
@@ -147,7 +147,7 @@ fun RepositoryHandler.bitBuildArtifactory(
         name = "BitBuildArtifactoryPublic"
     }
 
-    return if (publish || useCredentials) createMavenRepo(url, name,"ARTIFACTORY_USER", "ARTIFACTORY_TOKEN")
+    return if (publish || useCredentials) createMavenRepo(url, name, "ARTIFACTORY_USER", "ARTIFACTORY_TOKEN")
     else createMavenRepo(url, name)
 }
 
