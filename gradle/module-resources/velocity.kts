@@ -6,3 +6,9 @@ dependencies {
     compileOnly(libs.minecraft.proxy.velocity)
     kapt(libs.minecraft.proxy.velocity)
 }
+
+tasks {
+    kapt {
+        this.useBuildCache = true
+    }
+}
