@@ -6,7 +6,7 @@ rootProject.name = "Kotlin-Plugin-Template"
  * Deactivate with caution as it will remove the corresponding directory!!!
  */
 val modules: Map<String, Boolean> = mapOf(
-    "tools" to false,
+    "utils" to false,
 
     "spigot" to false,
     "paper" to false,
