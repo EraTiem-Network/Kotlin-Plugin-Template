@@ -1,10 +1,11 @@
 [versions]
-kotlin = "1.7.20"
-shadow = "7.1.2"
+kotlin = "1.8.10"
+shadow = "8.1.1"
+run = "2.0.0"
 
 # Minecraft Software
-spigot = "1.19.2-R0.1-SNAPSHOT"
-paper = "1.19.2-R0.1-SNAPSHOT"
+spigot = "1.19.4-R0.1-SNAPSHOT"
+paper = "1.19.4-R0.1-SNAPSHOT"
 bungeecord = "1.19-R0.1-SNAPSHOT"
 waterfall = "1.19-R0.1-SNAPSHOT"
 velocity = "3.1.1"
@@ -13,7 +14,6 @@ velocity = "3.1.1"
 plugin-spigot = "1.19"
 plugin-paper = "1.19"
 plugin-bungeecord = "1.19"
-plugin-run = "2.0.0"
 
 [libraries]
 kotlin-gradleplugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -35,6 +35,6 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 
 # Run
-run-paper = { id = "xyz.jpenilla.run-paper", version.ref = "plugin-run" }
-run-velocity = { id = "xyz.jpenilla.run-velocity", version.ref = "plugin-run" }
-run-waterfall = { id = "xyz.jpenilla.run-waterfall", version.ref = "plugin-run" }
+run-paper = { id = "xyz.jpenilla.run-paper", version.ref = "run" }
+run-velocity = { id = "xyz.jpenilla.run-velocity", version.ref = "run" }
+run-waterfall = { id = "xyz.jpenilla.run-waterfall", version.ref = "run" }
