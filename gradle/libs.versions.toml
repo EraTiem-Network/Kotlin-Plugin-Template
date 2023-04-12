@@ -1,7 +1,7 @@
 [versions]
 kotlin = "1.8.10"
 shadow = "8.1.1"
-run = "2.0.0"
+run = "2.0.1"
 
 # Minecraft Software
 spigot = "1.19.4-R0.1-SNAPSHOT"
