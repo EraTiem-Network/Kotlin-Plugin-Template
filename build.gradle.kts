@@ -62,7 +62,7 @@ subprojects {
       withType<Copy> {
         outputs.upToDateWhen { false }
 
-        val mainClass = "${project.group}.${project.name.toLowerCase()}.${project.properties["mainClass"]}"
+        val mainClass = "${project.group}.${project.name.lowercase()}.${project.properties["mainClass"]}"
         val pluginDescription: String by project
         val pluginDependencies = getAsYamlList(project.properties["pluginDependencies"])
         val pluginSoftDependencies = getAsYamlList(project.properties["pluginSoftdependencies"])
