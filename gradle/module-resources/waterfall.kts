@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-  compileOnly(libs.minecraft.proxy.bungeecord)
+  compileOnly(libs.minecraft.proxy.waterfall)
 }
 
 tasks.runWaterfall {

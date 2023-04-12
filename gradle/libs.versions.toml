@@ -1,11 +1,13 @@
 [versions]
-kotlin = "1.7.20"
-shadow = "7.1.2"
+kotlin = "1.8.10"
+shadow = "8.1.1"
+run = "2.0.0"
 
 # Minecraft Software
-spigot = "1.19.2-R0.1-SNAPSHOT"
-paper = "1.19.2-R0.1-SNAPSHOT"
+spigot = "1.19.4-R0.1-SNAPSHOT"
+paper = "1.19.4-R0.1-SNAPSHOT"
 bungeecord = "1.19-R0.1-SNAPSHOT"
+waterfall = "1.19-R0.1-SNAPSHOT"
 velocity = "3.1.1"
 
 # Plugin Values
@@ -21,6 +23,7 @@ kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", versio
 minecraft-server-spigot = { group = "org.spigotmc", name = "spigot-api", version.ref = "spigot" }
 minecraft-server-paper = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" }
 minecraft-proxy-bungeecord = { group = "net.md-5", name = "bungeecord-api", version.ref = "bungeecord" }
+minecraft-proxy-waterfall = { group = "io.github.waterfallmc", name = "waterfall-api", version.ref = "waterfall" }
 minecraft-proxy-velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
 
 # Minecraft Plugin Dependencies
@@ -30,3 +33,8 @@ minecraft-plugin-eralogger = { group = "net.eratiem", name = "eralogger", versio
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+
+# Run
+run-paper = { id = "xyz.jpenilla.run-paper", version.ref = "run" }
+run-velocity = { id = "xyz.jpenilla.run-velocity", version.ref = "run" }
+run-waterfall = { id = "xyz.jpenilla.run-waterfall", version.ref = "run" }
