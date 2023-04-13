@@ -1,4 +1,3 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.toUpperCaseAsciiOnly
 import java.util.stream.Collectors
@@ -35,25 +34,29 @@ subprojects {
     compileOnly(rootProject.libs.kotlin.stdlib)
   }
 
-  tasks {
-    project.configurations.implementation.get().isCanBeResolved = true
+  configurations {
+    create("shadowJarDependencies").apply {
+      extendsFrom(project.configurations.implementation.get())
+      isCanBeResolved = true
+    }
+  }
 
-    val shadowJarTask = register<ShadowJar>("${project.name}Jar") {
+  tasks {
+    shadowJar {
       group = "plugin"
       enabled = true
+      dependsOn(classes)
 
-      configurations = listOf(project.configurations.implementation.get())
+      configurations = listOf(
+        project.configurations.getByName("shadowJarDependencies")
+      )
 
       archiveBaseName.set(rootProject.name)
       archiveClassifier.set(project.name)
 
     }
     if (project.name == "tools")
-      rootProject.ext["toolsArtifact"] = shadowJarTask
-
-    build {
-      dependsOn(shadowJarTask)
-    }
+      rootProject.ext["toolsArtifact"] = shadowJar
 
     /**
      * Copy Task to fill plugin.yml
@@ -62,7 +65,7 @@ subprojects {
       withType<Copy> {
         outputs.upToDateWhen { false }
 
-        val mainClass = "${project.group}.${project.name.lowercase()}.${project.properties["mainClass"]}"
+        val mainClass = "${project.group}.${rootProject.name.lowercase()}.${project.properties["mainClass"]}"
         val pluginDescription: String by project
         val pluginDependencies = getAsYamlList(project.properties["pluginDependencies"])
         val pluginSoftDependencies = getAsYamlList(project.properties["pluginSoftdependencies"])
@@ -79,15 +82,20 @@ subprojects {
         )
 
         filesMatching("plugin.yml") {
-          val api = if (this.sourceName.contains("plugin")) "pluginApiVersion" else "bungeeApiVersion"
-          props["plugin_api_version"] = (project.properties[api] as String?) ?: ""
+          val api = when (project.name) {
+            "spigot" -> rootProject.libs.versions.plugin.spigot
+            "paper" -> rootProject.libs.versions.plugin.paper
+            "bungeecord" -> rootProject.libs.versions.plugin.bungeecord
+            else -> rootProject.libs.versions.plugin.waterfall
+          }
+          props["plugin_api_version"] = api.get()
 
           expand(props)
         }
       }
     }
 
-    // Disable standart jar task
+    // Disable standard jar task
     jar {
       enabled = false
     }
@@ -126,8 +134,12 @@ repositories {
 }
 
 tasks {
-  // Disable standart jar task
+  // Disable standard jar task
   jar {
+    enabled = false
+  }
+
+  shadowJar {
     enabled = false
   }
 }
