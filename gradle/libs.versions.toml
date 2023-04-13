@@ -14,6 +14,7 @@ velocity = "3.1.1"
 plugin-spigot = "1.19"
 plugin-paper = "1.19"
 plugin-bungeecord = "1.19"
+plugin-waterfall = "1.19"
 
 [libraries]
 kotlin-gradleplugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
