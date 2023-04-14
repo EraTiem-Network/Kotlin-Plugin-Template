@@ -85,6 +85,7 @@ subprojects {
           val api = when (project.name) {
             "spigot" -> rootProject.libs.versions.plugin.spigot
             "paper" -> rootProject.libs.versions.plugin.paper
+            "folia" -> rootProject.libs.versions.plugin.folia
             "bungeecord" -> rootProject.libs.versions.plugin.bungeecord
             else -> rootProject.libs.versions.plugin.waterfall
           }

@@ -10,6 +10,7 @@ val modules: Map<String, Boolean> = mapOf(
 
   "spigot" to false,
   "paper" to false,
+  "folia" to false,
 
   "bungeecord" to false,
   "waterfall" to false,
@@ -17,7 +18,7 @@ val modules: Map<String, Boolean> = mapOf(
 )
 
 val modulesWithPluginYAML: List<String> = listOf(
-  "spigot", "paper", "bungeecord", "waterfall"
+  "spigot", "paper", "folia", "bungeecord", "waterfall"
 )
 
 val moduleResources =
