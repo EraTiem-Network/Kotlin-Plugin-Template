@@ -7,7 +7,7 @@ if (properties["enableToolsMavenDependency"] == "true") {
     publications {
       create<MavenPublication>("Tools") {
         groupId = project.group.toString()
-        artifactId = rootProject.name.toLowerCase()
+        artifactId = rootProject.name.lowercase()
         version = project.version.toString()
 
         artifact(rootProject.ext["toolsArtifact"] as TaskProvider<*>)
