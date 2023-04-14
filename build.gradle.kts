@@ -52,7 +52,9 @@ subprojects {
       )
 
       archiveBaseName.set(rootProject.name)
-      archiveClassifier.set(project.name)
+      archiveClassifier.set(null as String?)
+      if (project.name != "tools")
+        archiveAppendix.set(project.name)
 
     }
     if (project.name == "tools")
