@@ -31,7 +31,7 @@ minecraft-proxy-waterfall = { group = "io.github.waterfallmc", name = "waterfall
 minecraft-proxy-velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
 
 # Minecraft Plugin Dependencies
-minecraft-plugin-eralogger = { group = "net.eratiem", name = "eralogger", version = "1.1.0" }
+minecraft-plugin-eralogger = { group = "net.eratiem", name = "eralogger", version = "1.0.0.alpha1" }
 
 [plugins]
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
