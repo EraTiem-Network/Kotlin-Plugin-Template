@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.util.capitalizeDecapitalize.toUpperCaseAsciiOnly
 import java.util.stream.Collectors
 
 plugins {
@@ -32,6 +31,8 @@ subprojects {
 
     compileOnly(rootProject.libs.kotlin.gradleplugin)
     compileOnly(rootProject.libs.kotlin.stdlib)
+
+    compileOnly(rootProject.libs.minecraft.plugin.eralogger)
   }
 
   configurations {
@@ -74,7 +75,7 @@ subprojects {
         val authors: String = getAsYamlList(project.properties["authors"])
 
         val props: LinkedHashMap<String, String> = linkedMapOf(
-          "plugin_name" to project.name,
+          "plugin_name" to rootProject.name,
           "plugin_description" to pluginDescription,
           "plugin_version" to version.toString(),
           "plugin_main_class" to mainClass,
@@ -153,9 +154,11 @@ fun RepositoryHandler.bitBuildArtifactory(
   val url: String
   val name: String
   if (publish) {
-    val isSnapshot = project.version.toString().toUpperCaseAsciiOnly().contains("SNAPSHOT")
-    url = "https://artifactory.bit-build.de/artifactory/eratiem${if (isSnapshot) "-snapshots" else ""}"
-    name = "BitBuildArtifactoryEraTiem${if (isSnapshot) "Snapshots" else ""}"
+    val nonReleaseStrings = listOf("snapshot", "alpha", "beta", "rc")
+    val isNonRelease =
+      nonReleaseStrings.any { project.version.toString().contains(it, true) }
+    url = "https://artifactory.bit-build.de/artifactory/eratiem${if (isNonRelease) "-snapshots" else ""}"
+    name = "BitBuildArtifactoryEraTiem${if (isNonRelease) "Snapshots" else ""}"
 
   } else {
     url = "https://artifactory.bit-build.de/artifactory/public"
