@@ -32,6 +32,8 @@ subprojects {
 
     compileOnly(rootProject.libs.kotlin.gradleplugin)
     compileOnly(rootProject.libs.kotlin.stdlib)
+
+    compileOnly(rootProject.libs.minecraft.plugin.eralogger)
   }
 
   configurations {
@@ -52,7 +54,9 @@ subprojects {
       )
 
       archiveBaseName.set(rootProject.name)
-      archiveClassifier.set(project.name)
+      archiveClassifier.set(null as String?)
+      if (project.name != "tools")
+        archiveAppendix.set(project.name)
 
     }
     if (project.name == "tools")
@@ -72,7 +76,7 @@ subprojects {
         val authors: String = getAsYamlList(project.properties["authors"])
 
         val props: LinkedHashMap<String, String> = linkedMapOf(
-          "plugin_name" to project.name,
+          "plugin_name" to rootProject.name,
           "plugin_description" to pluginDescription,
           "plugin_version" to version.toString(),
           "plugin_main_class" to mainClass,
