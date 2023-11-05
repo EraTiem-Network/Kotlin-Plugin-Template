@@ -4,19 +4,19 @@ shadow = "8.1.1"
 run = "2.2.0"
 
 # Minecraft Software
-spigot = "1.19.4-R0.1-SNAPSHOT"
-paper = "1.19.4-R0.1-SNAPSHOT"
-folia = "1.19.4-R0.1-SNAPSHOT"
-bungeecord = "1.20-R0.1"
-waterfall = "1.19-R0.1-SNAPSHOT"
-velocity = "3.1.1"
+spigot = "1.20.2-R0.1-SNAPSHOT"
+paper = "1.20.2-R0.1-SNAPSHOT"
+folia = "1.20.2-R0.1-SNAPSHOT"
+bungeecord = "1.20-R0.1-SNAPSHOT"
+waterfall = "1.20-R0.1-SNAPSHOT"
+velocity = "3.2.0-SNAPSHOT"
 
 # Plugin Values
-plugin-spigot = "1.19"
-plugin-paper = "1.19"
-plugin-folia = "1.19"
-plugin-bungeecord = "1.19"
-plugin-waterfall = "1.19"
+plugin-spigot = "1.20"
+plugin-paper = "1.20"
+plugin-folia = "1.20"
+plugin-bungeecord = "1.20"
+plugin-waterfall = "1.20"
 
 [libraries]
 kotlin-gradleplugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
@@ -32,6 +32,8 @@ minecraft-proxy-velocity = { group = "com.velocitypowered", name = "velocity-api
 
 # Minecraft Plugin Dependencies
 minecraft-plugin-eralogger = { group = "net.eratiem", name = "eralogger", version = "1.0.0.alpha1" }
+
+snakeyaml = { group = "org.snakeyaml", name = "snakeyaml-engine", version = "2.7" }
 
 [plugins]
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
