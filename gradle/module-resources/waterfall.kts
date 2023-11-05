@@ -7,5 +7,5 @@ dependencies {
 }
 
 tasks.runWaterfall {
-  waterfallVersion("1.19")
+  waterfallVersion("1.20")
 }
