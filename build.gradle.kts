@@ -1,5 +1,12 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.snakeyaml.engine.v2.api.Dump
+import org.snakeyaml.engine.v2.api.DumpSettings
+import org.snakeyaml.engine.v2.api.Load
+import org.snakeyaml.engine.v2.api.LoadSettings
 import java.util.stream.Collectors
+
+group = "net.eratiem"
+version = "0.1-SNAPSHOT"
 
 plugins {
   alias(libs.plugins.kotlin.jvm)
@@ -8,8 +15,19 @@ plugins {
   idea
 }
 
-group = "net.eratiem"
-version = "0.1-SNAPSHOT"
+buildscript {
+  dependencies {
+    classpath(libs.snakeyaml)
+  }
+}
+
+val yamlLoad = Load(LoadSettings.builder().build())
+val yamlDump = Dump(DumpSettings.builder().build())
+val commands by lazy {
+  project.file("commands.yml").bufferedReader().use {
+    yamlLoad.loadFromReader(it) as? LinkedHashMap<*, *>
+  }
+}
 
 subprojects {
   this.group = rootProject.group
@@ -75,6 +93,7 @@ subprojects {
         val pluginDependencies = getAsYamlList(project.properties["pluginDependencies"])
         val pluginSoftDependencies = getAsYamlList(project.properties["pluginSoftdependencies"])
         val authors: String = getAsYamlList(project.properties["authors"])
+        val commands: String = commands?.let { commandsDumpOptimization(yamlDump.dumpToString(it)) } ?: "[]"
 
         val props: LinkedHashMap<String, String> = linkedMapOf(
           "plugin_name" to rootProject.name,
@@ -83,7 +102,8 @@ subprojects {
           "plugin_main_class" to mainClass,
           "plugin_dependencies" to pluginDependencies,
           "plugin_softdependencies" to pluginSoftDependencies,
-          "plugin_authors" to authors
+          "plugin_authors" to authors,
+          "plugin_commands" to commands
         )
 
         filesMatching("plugin.yml") {
@@ -132,6 +152,11 @@ fun getAsYamlList(commaSeparatedList: Any?): String =
       .map { "\n  - $it" }
       .collect(Collectors.joining())
   } else ""
+
+fun commandsDumpOptimization(commandsDump: String?) = commandsDump?.let {
+  it.split("\n")
+    .joinToString("\n", "\n") { line -> "  $line" }
+}
 
 repositories {
   bitBuildArtifactory()

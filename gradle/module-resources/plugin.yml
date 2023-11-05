@@ -7,3 +7,4 @@ prefix: $plugin_name
 depend: $plugin_dependencies
 softDepends: $plugin_softdependencies
 authors: $plugin_authors
+commands: $plugin_commands
