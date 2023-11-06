@@ -7,7 +7,7 @@ run = "2.2.0"
 spigot = "1.20.2-experimental-SNAPSHOT"
 paper = "1.20.2-R0.1-SNAPSHOT"
 folia = "1.20.2-R0.1-SNAPSHOT"
-bungeecord = "1.20-R0.1-SNAPSHOT"
+bungeecord = "1.20-R0.2-SNAPSHOT"
 waterfall = "1.20-R0.2-SNAPSHOT"
 velocity = "3.2.0-SNAPSHOT"
 
