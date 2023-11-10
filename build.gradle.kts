@@ -15,19 +15,27 @@ plugins {
   idea
 }
 
+// Load SnakeYaml
 buildscript {
   dependencies {
     classpath(libs.snakeyaml)
   }
 }
 
-val yamlLoad = Load(LoadSettings.builder().build())
-val yamlDump = Dump(DumpSettings.builder().build())
-val commands by lazy {
-  project.file("commands.yml").bufferedReader().use {
-    yamlLoad.loadFromReader(it) as? LinkedHashMap<*, *>
+// Command YAMLs
+val yamlLoad by lazy { Load(LoadSettings.builder().build()) }
+val yamlDump by lazy { Dump(DumpSettings.builder().build()) }
+val loadYaml = { it: String ->
+  val file = project.file(it)
+  if (!file.exists()) file.createNewFile()
+
+  project.file(it).bufferedReader().use { reader ->
+    yamlLoad.loadFromReader(reader) as? LinkedHashMap<*, *>
   }
 }
+val commands by lazy { loadYaml("commands.yml") }
+val proxyCommands by lazy { loadYaml("proxyCommands.yml") }
+
 
 subprojects {
   this.group = rootProject.group
@@ -93,7 +101,14 @@ subprojects {
         val pluginDependencies = getAsYamlList(project.properties["pluginDependencies"])
         val pluginSoftDependencies = getAsYamlList(project.properties["pluginSoftdependencies"])
         val authors: String = getAsYamlList(project.properties["authors"])
-        val commands: String = commands?.let { commandsDumpOptimization(yamlDump.dumpToString(it)) } ?: "[]"
+        val commands: String = if (
+          (project.properties["splitCommandYaml"] as? Boolean == true) &&
+          project.name in arrayOf("bungeecord", "waterfall")
+        ) {
+          commands?.let { commandsDumpOptimization(yamlDump.dumpToString(it)) } ?: "[]"
+        } else {
+          proxyCommands?.let { commandsDumpOptimization(yamlDump.dumpToString(it)) } ?: "[]"
+        }
 
         val props: LinkedHashMap<String, String> = linkedMapOf(
           "plugin_name" to rootProject.name,
