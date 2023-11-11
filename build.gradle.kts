@@ -204,15 +204,15 @@ fun RepositoryHandler.bitBuildArtifactory(
     val nonReleaseStrings = listOf("snapshot", "alpha", "beta", "rc")
     val isNonRelease =
       nonReleaseStrings.any { project.version.toString().contains(it, true) }
-    url = "https://artifactory.bit-build.de/artifactory/eratiem${if (isNonRelease) "-snapshots" else ""}"
-    name = "BitBuildArtifactoryEraTiem${if (isNonRelease) "Snapshots" else ""}"
+    url = "https://packages.bit-build.de/maven/p/eratiem-network/eratiem"
+    name = "BitBuildSpaceEraTiem"
 
   } else {
     url = "https://artifactory.bit-build.de/artifactory/public"
     name = "BitBuildArtifactoryPublic"
   }
 
-  return if (publish || useCredentials) createMavenRepo(url, name, "ARTIFACTORY_USER", "ARTIFACTORY_TOKEN")
+  return if (publish || useCredentials) createMavenRepo(url, name, "SPACE_USER", "SPACE_TOKEN")
   else createMavenRepo(url, name)
 }
 
