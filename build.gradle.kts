@@ -12,6 +12,8 @@ plugins {
   alias(libs.plugins.kotlin.jvm)
   alias(libs.plugins.shadow)
 
+  alias(libs.plugins.paperweight.userdev) apply false
+
   idea
 }
 
@@ -51,6 +53,9 @@ subprojects {
   apply {
     plugin(rootProject.libs.plugins.kotlin.jvm.get().pluginId)
     plugin(rootProject.libs.plugins.shadow.get().pluginId)
+
+    if (project.name in arrayOf("paper", "spigot", "folia"))
+      plugin(rootProject.libs.plugins.paperweight.userdev.get().pluginId)
   }
 
   dependencies {
@@ -105,9 +110,9 @@ subprojects {
           (project.properties["splitCommandYaml"] as? Boolean == true) &&
           project.name in arrayOf("bungeecord", "waterfall")
         ) {
-          commands?.let { commandsDumpOptimization(yamlDump.dumpToString(it)) } ?: "[]"
-        } else {
           proxyCommands?.let { commandsDumpOptimization(yamlDump.dumpToString(it)) } ?: "[]"
+        } else {
+          commands?.let { commandsDumpOptimization(yamlDump.dumpToString(it)) } ?: "[]"
         }
 
         val props: LinkedHashMap<String, String> = linkedMapOf(

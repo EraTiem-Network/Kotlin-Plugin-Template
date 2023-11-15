@@ -2,6 +2,7 @@
 kotlin = "1.9.20"
 shadow = "8.1.1"
 run = "2.2.0"
+paperweight = "1.5.9"
 
 # Minecraft Software
 spigot = "1.20.2-experimental-SNAPSHOT"
@@ -39,6 +40,7 @@ snakeyaml = { group = "org.snakeyaml", name = "snakeyaml-engine", version = "2.7
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+paperweight-userdev = { id = 'io.papermc.paperweight.userdev', version.ref = "paperweight" }
 
 # Run
 run-paper = { id = "xyz.jpenilla.run-paper", version.ref = "run" }
