@@ -1,6 +1,5 @@
 [versions]
 kotlin = "1.9.22"
-kotlin-gradle = "4.3.0"
 shadow = "8.1.1"
 run = "2.2.3"
 paperweight = "1.5.11"
@@ -22,11 +21,6 @@ kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", versio
 minecraft-server-folia = { group = "dev.folia", name = "folia-api", version.ref = "folia" }
 minecraft-server-paper = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" }
 minecraft-proxy-velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
-
-# Minecraft Plugin Dependencies
-minecraft-plugin-eralogger = { group = "net.eratiem", name = "eralogger", version = "1.0.0.alpha1" }
-
-snakeyaml = { group = "org.snakeyaml", name = "snakeyaml-engine", version = "2.7" }
 
 [plugins]
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
