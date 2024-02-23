@@ -1,57 +1,218 @@
+import java.io.File.separator
+import java.net.URI
+import kotlin.io.OnErrorAction.SKIP
+
 rootProject.name = "Kotlin-Plugin-Template"
 
-/**
- * Activate or deactivate modules.
- *
- * Deactivate with caution as it will remove the corresponding directory!!!
- */
-val modules: Map<String, Boolean> = mapOf(
-  "tools" to false,
+projectSettings {
 
-  "spigot" to false,
-  "paper" to false,
-  "folia" to false,
+  activeModules {
 
-  "bungeecord" to false,
-  "waterfall" to false,
-  "velocity" to false
-)
+  }
 
-val modulesWithPluginYAML: List<String> = listOf(
-  "spigot", "paper", "folia", "bungeecord", "waterfall"
-)
+  serverPluginProperties {
+    authors {
 
-val moduleResources =
-  File("${rootProject.projectDir.absolutePath}${File.separator}gradle${File.separator}module-resources")
-val basePluginYAML = File("${moduleResources.path}${File.separator}plugin.yml")
+    }
+    mainClass = "TemplatePlugin"
+    description = "A simple Template-Plugin using Kotlin as main language"
+    dependencies {
+      add("KotlinProvider")
+    }
+    softDependencies {
 
-modules.forEach { (moduleName, active) ->
-  val moduleDir = File("${rootProject.projectDir.absolutePath}${File.separator}$moduleName")
+    }
+  }
 
-  if (active) {
-    if (!moduleDir.exists())
-      createModuleFolder(moduleName, moduleDir)
-    include(moduleName)
-  } else {
-    if (moduleDir.exists())
-      moduleDir.deleteRecursively()
+  proxyPluginProperties {
+    description = "A simple Template-Plugin using Kotlin as main language"
+    dependencies {
+      add("KotlinProvider")
+    }
+    softDependencies {
+
+    }
   }
 }
 
-fun createModuleFolder(moduleName: String, moduleDir: File) {
-  val baseModuleBuildScript = File("${moduleResources.path}${File.separator}$moduleName.kts")
+// ####################################################################################################################
+// ####################################################################################################################
+// ####################################################################################################################
+// Following code is to get above working or general settings that should not be touched unless you know what you're doing
 
-  val moduleBuildScript = File("${moduleDir.path}${File.separator}build.gradle.kts")
-  val moduleMainKotlinDir = File("${moduleDir.path}${File.separator}src${File.separator}main${File.separator}kotlin")
+System.setProperty("kotlin.code.style", "official")
 
-  moduleDir.mkdirs()
-  moduleMainKotlinDir.mkdirs()
-  baseModuleBuildScript.copyTo(moduleBuildScript)
-
-  if (moduleName in modulesWithPluginYAML) {
-    val modulePluginYAML =
-      File("${moduleMainKotlinDir.parentFile.path}${File.separator}resources${File.separator}plugin.yml")
-    modulePluginYAML.parentFile.mkdirs()
-    basePluginYAML.copyTo(modulePluginYAML)
+dependencyResolutionManagement {
+  pluginManagement.repositories {
+    maven {
+      name = "Bit-Build | Artifactory"
+      url = URI("https://artifactory.bit-build.de/artifactory/public")
+    }
   }
 }
+
+private fun projectSettings(block: ProjectSettings.() -> Unit) {
+  ProjectSettings().block()
+}
+
+private class ProjectSettings {
+  init {
+    extra["create-util-lib-jar"] = false
+  }
+
+  private val serverPluginProperties = ServerPluginProperties()
+  private val proxyPluginProperties = ProxyPluginProperties()
+
+  /**
+   * Possible activations:
+   * ```kotlin
+   * folia()
+   * paper()
+   * velocity()
+   * utils {}
+   * ```
+   */
+  fun activeModules(block: ProjectModules.() -> Unit) {
+    ProjectModules().block()
+  }
+
+  fun serverPluginProperties(block: ServerPluginProperties.() -> Unit) {
+    serverPluginProperties.block()
+  }
+
+  fun proxyPluginProperties(block: ProxyPluginProperties.() -> Unit) {
+    proxyPluginProperties.block()
+  }
+}
+
+private class ProjectModules {
+  fun folia() = setupProject("folia")
+  fun paper() = setupProject("paper")
+  fun velocity() = setupProject("velocity")
+
+  /**
+   * To build a jar for publication:
+   * ```kotlin
+   * createUtilLibJar = true
+   * ```
+   */
+  fun util(block: UtilSettings.() -> Unit) {
+    UtilSettings().block()
+    setupProject("util")
+  }
+
+  private fun setupProject(projectName: String) {
+    include(":$projectName")
+    project(":$projectName").run {
+      projectDir = File("modules$separator$projectName")
+      projectDir
+    }.also { projectDir ->
+      if (!projectDir.exists()) projectDir.mkdirs()
+
+      File("gradle${separator}templates$separator$projectName").copyRecursively(projectDir, onError = { _, _ -> SKIP })
+      val pluginYml = File("gradle${separator}templates${separator}plugin.yml")
+      File("${projectDir.path}${separator}src${separator}main${separator}kotlin").mkdirs()
+      File("${projectDir.path}${separator}src${separator}main${separator}resources").also {
+        it.mkdirs()
+        if (projectName !in listOf("util", "velocity"))
+          pluginYml.copyRecursively(it.resolve("plugin.yml"), onError = { _, _ -> SKIP })
+      }
+      File("${projectDir.path}${separator}src${separator}test${separator}kotlin").mkdirs()
+      File("${projectDir.path}${separator}src${separator}test${separator}resources").mkdirs()
+    }
+  }
+}
+
+private class UtilSettings {
+  var createUtilLibJar = false
+    set(value) {
+      extra["create-util-lib-jar"] = value
+      field = value
+    }
+}
+
+private class ServerPluginProperties {
+  private val authors: PluginListProperty = PluginListProperty()
+  var mainClass: String = ""
+    set(value) {
+      propsMap()["mainClass"] = value
+      field = value
+    }
+  var description: String = ""
+    set(value) {
+      propsMap()["description"] = value
+      field = value
+    }
+  private val dependencies: PluginListProperty = PluginListProperty()
+  private val softDependencies: PluginListProperty = PluginListProperty()
+
+  init {
+    extra["server-plugin-properties"] = mapOf(
+      "authors" to "",
+      "mainClass" to "",
+      "description" to "",
+      "dependencies" to "",
+      "softDependencies" to ""
+    )
+  }
+
+  fun authors(block: PluginListProperty.() -> Unit) {
+    authors.block()
+    propsMap()["authors"] = "$authors"
+  }
+
+  fun dependencies(block: PluginListProperty.() -> Unit) {
+    dependencies.block()
+    propsMap()["dependencies"] = "$dependencies"
+  }
+
+  fun softDependencies(block: PluginListProperty.() -> Unit) {
+    softDependencies.block()
+    propsMap()["softDependencies"] = "$softDependencies"
+  }
+
+  private fun propsMap() = extra.getPropertiesMap("server-plugin-properties")
+}
+
+private class ProxyPluginProperties {
+  var description: String = ""
+    set(value) {
+      propsMap()["description"] = value
+      field = value
+    }
+  private val dependencies: PluginListProperty = PluginListProperty()
+  private val softDependencies: PluginListProperty = PluginListProperty()
+
+  init {
+    extra["proxy-plugin-properties"] = mapOf(
+      "description" to "",
+      "dependencies" to "",
+      "softDependencies" to ""
+    )
+  }
+
+  fun dependencies(block: PluginListProperty.() -> Unit) {
+    dependencies.block()
+    propsMap()["dependencies"] = "$dependencies"
+  }
+
+  fun softDependencies(block: PluginListProperty.() -> Unit) {
+    softDependencies.block()
+    propsMap()["softDependencies"] = "$softDependencies"
+  }
+
+  private fun propsMap() = extra.getPropertiesMap("proxy-plugin-properties")
+}
+
+class PluginListProperty : LinkedHashSet<String>() {
+  override fun toString(): String = yamlListOf()
+
+  private fun yamlListOf() =
+    takeIf { it.isNotEmpty() } // IF
+      ?.toList()?.toString()   // DO
+      ?: ""                    // ELSE
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun ExtraPropertiesExtension.getPropertiesMap(key: String): MutableMap<String, String> =
+  extra[key]!! as MutableMap<String, String>
