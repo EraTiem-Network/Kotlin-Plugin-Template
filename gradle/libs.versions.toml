@@ -2,7 +2,7 @@
 kotlin = "1.9.22"
 kotlin-gradle = "4.3.0"
 shadow = "8.1.1"
-run = "2.2.2"
+run = "2.2.3"
 paperweight = "1.5.11"
 
 # Minecraft Software
