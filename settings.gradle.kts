@@ -120,32 +120,10 @@ private class ProjectModules {
       File("${projectDir.path}${separator}src${separator}test${separator}kotlin").mkdirs()
       File("${projectDir.path}${separator}src${separator}test${separator}resources").mkdirs()
     }
-
-
   }
 }
 
-private class ServerPluginProperties {
-  private val authors: PluginListProperty = PluginListProperty()
-  var mainClass: String = ""
-  var description: String = ""
-  private val dependencies: PluginListProperty = PluginListProperty()
-  private val softDependencies: PluginListProperty = PluginListProperty()
-
-  fun authors(block: PluginListProperty.() -> Unit) {
-    authors.block()
-  }
-
-  fun dependencies(block: PluginListProperty.() -> Unit) {
-    dependencies.block()
-  }
-
-  fun softDependencies(block: PluginListProperty.() -> Unit) {
-    softDependencies.block()
-  }
-}
-
-class UtilSettings {
+private class UtilSettings {
   var createUtilLibJar = false
     set(value) {
       extra["create-util-lib-jar"] = value
@@ -153,21 +131,80 @@ class UtilSettings {
     }
 }
 
-private class ProxyPluginProperties {
+private class ServerPluginProperties {
+  private val authors: PluginListProperty = PluginListProperty()
+  var mainClass: String = ""
+    set(value) {
+      propsMap()["mainClass"] = value
+      field = value
+    }
   var description: String = ""
+    set(value) {
+      propsMap()["description"] = value
+      field = value
+    }
   private val dependencies: PluginListProperty = PluginListProperty()
   private val softDependencies: PluginListProperty = PluginListProperty()
 
+  init {
+    extra["server-plugin-properties"] = mapOf(
+      "authors" to "",
+      "mainClass" to "",
+      "description" to "",
+      "dependencies" to "",
+      "softDependencies" to ""
+    )
+  }
+
+  fun authors(block: PluginListProperty.() -> Unit) {
+    authors.block()
+    propsMap()["authors"] = "$authors"
+  }
+
   fun dependencies(block: PluginListProperty.() -> Unit) {
     dependencies.block()
+    propsMap()["dependencies"] = "$dependencies"
   }
 
   fun softDependencies(block: PluginListProperty.() -> Unit) {
     softDependencies.block()
+    propsMap()["softDependencies"] = "$softDependencies"
   }
+
+  private fun propsMap() = extra.getPropertiesMap("server-plugin-properties")
 }
 
-private class PluginListProperty : LinkedHashSet<String>() {
+private class ProxyPluginProperties {
+  var description: String = ""
+    set(value) {
+      propsMap()["description"] = value
+      field = value
+    }
+  private val dependencies: PluginListProperty = PluginListProperty()
+  private val softDependencies: PluginListProperty = PluginListProperty()
+
+  init {
+    extra["proxy-plugin-properties"] = mapOf(
+      "description" to "",
+      "dependencies" to "",
+      "softDependencies" to ""
+    )
+  }
+
+  fun dependencies(block: PluginListProperty.() -> Unit) {
+    dependencies.block()
+    propsMap()["dependencies"] = "$dependencies"
+  }
+
+  fun softDependencies(block: PluginListProperty.() -> Unit) {
+    softDependencies.block()
+    propsMap()["softDependencies"] = "$softDependencies"
+  }
+
+  private fun propsMap() = extra.getPropertiesMap("proxy-plugin-properties")
+}
+
+class PluginListProperty : LinkedHashSet<String>() {
   override fun toString(): String = yamlListOf()
 
   private fun yamlListOf() =
@@ -175,3 +212,7 @@ private class PluginListProperty : LinkedHashSet<String>() {
       ?.toList()?.toString()   // DO
       ?: ""                    // ELSE
 }
+
+@Suppress("UNCHECKED_CAST")
+private fun ExtraPropertiesExtension.getPropertiesMap(key: String): MutableMap<String, String> =
+  extra[key]!! as MutableMap<String, String>
