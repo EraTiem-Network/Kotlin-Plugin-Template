@@ -53,6 +53,10 @@ allprojects {
       enabled = false
     }
   }
+
+  kotlin {
+    jvmToolchain(17)
+  }
 }
 
 fun <T> getPropertyOrNull(key: String, castFun: String.() -> T) = try {

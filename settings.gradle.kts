@@ -41,6 +41,7 @@ projectSettings {
 // Following code is to get above working or general settings that should not be touched unless you know what you're doing
 
 System.setProperty("kotlin.code.style", "official")
+System.setProperty("kotlin.incremental", "true")
 
 dependencyResolutionManagement {
   pluginManagement.repositories {
