@@ -1,4 +1,5 @@
 import java.io.File.separator
+import java.lang.System.setProperty
 import java.net.URI
 import kotlin.io.OnErrorAction.SKIP
 
@@ -40,8 +41,8 @@ projectSettings {
 // ####################################################################################################################
 // Following code is to get above working or general settings that should not be touched unless you know what you're doing
 
-System.setProperty("kotlin.code.style", "official")
-System.setProperty("kotlin.incremental", "true")
+setProperty("kotlin.code.style", "official")
+setProperty("kotlin.incremental", "true")
 
 dependencyResolutionManagement {
   pluginManagement.repositories {
@@ -127,7 +128,7 @@ private class ProjectModules {
 private class UtilSettings {
   var createUtilLibJar = false
     set(value) {
-      extra["create-util-lib-jar"] = value
+      setProperty("project.create-util-lib-jar", "$value")
       field = value
     }
 }
@@ -136,73 +137,65 @@ private class ServerPluginProperties {
   private val authors: PluginListProperty = PluginListProperty()
   var mainClass: String = ""
     set(value) {
-      propsMap()["mainClass"] = value
+      setProperty("plugin.main-class", value)
       field = value
     }
   var description: String = ""
     set(value) {
-      propsMap()["description"] = value
+      setProperty("plugin.description", value)
       field = value
     }
   private val dependencies: PluginListProperty = PluginListProperty()
   private val softDependencies: PluginListProperty = PluginListProperty()
 
   init {
-    extra["server-plugin-properties"] = mapOf(
-      "authors" to "",
-      "mainClass" to "",
-      "description" to "",
-      "dependencies" to "",
-      "softDependencies" to ""
-    )
+    setProperty("plugin.authors", "")
+    setProperty("plugin.description", "")
+    setProperty("plugin.main-class", "")
+    setProperty("plugin.dependencies", "")
+    setProperty("plugin.soft-dependencies", "")
   }
 
   fun authors(block: PluginListProperty.() -> Unit) {
     authors.block()
-    propsMap()["authors"] = "$authors"
+    setProperty("plugin.authors", "$authors")
   }
 
   fun dependencies(block: PluginListProperty.() -> Unit) {
     dependencies.block()
-    propsMap()["dependencies"] = "$dependencies"
+    setProperty("plugin.dependencies", "$dependencies")
   }
 
   fun softDependencies(block: PluginListProperty.() -> Unit) {
     softDependencies.block()
-    propsMap()["softDependencies"] = "$softDependencies"
+    setProperty("plugin.soft-dependencies", "$softDependencies")
   }
-
-  private fun propsMap() = extra.getPropertiesMap("server-plugin-properties")
 }
 
 private class ProxyPluginProperties {
   var description: String = ""
     set(value) {
-      propsMap()["description"] = value
+      setProperty("proxy-plugin.description", value)
       field = value
     }
   private val dependencies: PluginListProperty = PluginListProperty()
   private val softDependencies: PluginListProperty = PluginListProperty()
 
   init {
-    extra["proxy-plugin-properties"] = mapOf(
-      "description" to "",
-      "dependencies" to "",
-      "softDependencies" to ""
-    )
+    setProperty("proxy-plugin.description", "")
+    setProperty("proxy-plugin.dependencies", "")
+    setProperty("proxy-plugin.soft-dependencies", "")
   }
 
   fun dependencies(block: PluginListProperty.() -> Unit) {
     dependencies.block()
-    propsMap()["dependencies"] = "$dependencies"
+    setProperty("proxy-plugin.dependencies", "$dependencies")
   }
 
   fun softDependencies(block: PluginListProperty.() -> Unit) {
     softDependencies.block()
-    propsMap()["softDependencies"] = "$softDependencies"
+    setProperty("proxy-plugin.soft-dependencies", "$softDependencies")
   }
-
-  private fun propsMap() = extra.getPropertiesMap("proxy-plugin-properties")
 }
 
 class PluginListProperty : LinkedHashSet<String>() {
@@ -211,9 +204,5 @@ class PluginListProperty : LinkedHashSet<String>() {
   private fun yamlListOf() =
     takeIf { it.isNotEmpty() } // IF
       ?.toList()?.toString()   // DO
-      ?: ""                    // ELSE
+      ?: "[]"                    // ELSE
 }
-
-@Suppress("UNCHECKED_CAST")
-private fun ExtraPropertiesExtension.getPropertiesMap(key: String): MutableMap<String, String> =
-  extra[key]!! as MutableMap<String, String>

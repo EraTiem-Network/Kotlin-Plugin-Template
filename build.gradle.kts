@@ -6,12 +6,14 @@ version = "0.1-SNAPSHOT"
 plugins {
   alias(libs.plugins.kotlin.jvm)
   alias(libs.plugins.kotlin.kapt) apply false
+  alias(libs.plugins.shadow) apply false
   idea
 }
 
 subprojects {
   apply {
     plugin(rootProject.libs.plugins.kotlin.jvm.get().pluginId)
+    plugin(rootProject.libs.plugins.shadow.get().pluginId)
   }
 }
 
