@@ -229,12 +229,8 @@ private class ProxyPluginProperties {
       field = value
     }
 
-  fun dependencies(block: PluginListProperty.() -> Unit) {
-    setProperty("proxy-plugin.dependencies", "${PluginListProperty(block)}")
-  }
-
-  fun softDependencies(block: PluginListProperty.() -> Unit) {
-    setProperty("proxy-plugin.soft-dependencies", "${PluginListProperty(block)}")
+  fun dependencies(block: ProxyDependenciesProperty.() -> Unit) {
+    setProperty("proxy-plugin.dependencies", "${ProxyDependenciesProperty(block)}")
   }
 }
 
@@ -249,6 +245,21 @@ private class PluginListProperty(block: PluginListProperty.() -> Unit = {}) : Li
     takeIf { it.isNotEmpty() } // IF
       ?.toList()?.toString()   // DO
       ?: "[]"                    // ELSE
+}
+
+private class ProxyDependenciesProperty(block: ProxyDependenciesProperty.() -> Unit) :
+  LinkedHashMap<String, Boolean>() {
+  init {
+    block()
+  }
+
+  fun add(dependency: String, optional: Boolean = false) {
+    put(dependency, optional)
+  }
+
+  override fun toString(): String = "[\n" +
+    map { (key, value) -> "    Dependency(id = \"${key.lowercase()}\", optional = $value)" }.joinToString(",\n") +
+    "\n  ]"
 }
 
 private fun <T : Any> T.applyIf(condition: Boolean, block: T.() -> Unit): T = if (condition) {
