@@ -1,10 +1,12 @@
-name: $plugin_name
-description: $plugin_description
-version: $plugin_version
 main: $plugin_main_class
+name: $plugin_name
+version: $plugin_version
 api-version: $plugin_api_version
+description: $plugin_description
+load: $plugin_load
+authors: $plugin_authors
 prefix: $plugin_name
 depend: $plugin_dependencies
 softDepends: $plugin_soft_dependencies
-authors: $plugin_authors
+loadbefore: $plugin_load_before
 commands: $plugin_commands

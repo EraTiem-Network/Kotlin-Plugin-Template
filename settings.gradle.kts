@@ -1,3 +1,4 @@
+import Settings_gradle.LoadTime.POSTWORLD
 import java.io.File.separator
 import java.lang.System.setProperty
 import java.net.URI
@@ -11,6 +12,13 @@ projectSettings {
 
   }
 
+  proxyPluginProperties {
+    description = "A simple Template-Plugin using Kotlin as main language"
+    dependencies {
+      add("KotlinProvider")
+    }
+  }
+
   serverPluginProperties {
     authors {
 
@@ -19,19 +27,6 @@ projectSettings {
     description = "A simple Template-Plugin using Kotlin as main language"
     dependencies {
       add("KotlinProvider")
-    }
-    softDependencies {
-
-    }
-  }
-
-  proxyPluginProperties {
-    description = "A simple Template-Plugin using Kotlin as main language"
-    dependencies {
-      add("KotlinProvider")
-    }
-    softDependencies {
-
     }
   }
 }
@@ -53,15 +48,14 @@ dependencyResolutionManagement {
   }
 }
 
+// ####################################################################################################################
+// Project Settings DSL
+
 private fun projectSettings(block: ProjectSettings.() -> Unit) {
   ProjectSettings().block()
 }
 
 private class ProjectSettings {
-  init {
-    extra["create-util-lib-jar"] = false
-  }
-
   private val serverPluginProperties = ServerPluginProperties()
   private val proxyPluginProperties = ProxyPluginProperties()
 
@@ -134,75 +128,131 @@ private class UtilSettings {
 }
 
 private class ServerPluginProperties {
-  private val authors: PluginListProperty = PluginListProperty()
+  init {
+    setProperty("plugin.authors", "[]")
+    setProperty("plugin.dependencies", "[]")
+    setProperty("plugin.soft-dependencies", "[]")
+    setProperty("plugin.load", "$POSTWORLD")
+    setProperty("plugin.load-before", "[]")
+    setProperty("plugin.commands", "{}")
+  }
+
   var mainClass: String = ""
     set(value) {
       setProperty("plugin.main-class", value)
       field = value
     }
+
   var description: String = ""
     set(value) {
       setProperty("plugin.description", value)
       field = value
     }
-  private val dependencies: PluginListProperty = PluginListProperty()
-  private val softDependencies: PluginListProperty = PluginListProperty()
 
-  init {
-    setProperty("plugin.authors", "")
-    setProperty("plugin.description", "")
-    setProperty("plugin.main-class", "")
-    setProperty("plugin.dependencies", "")
-    setProperty("plugin.soft-dependencies", "")
-  }
+  var load: LoadTime = POSTWORLD
+    set(value) {
+      setProperty("plugin.load", "$value")
+      field = value
+    }
 
   fun authors(block: PluginListProperty.() -> Unit) {
-    authors.block()
-    setProperty("plugin.authors", "$authors")
+    setProperty("plugin.authors", "${PluginListProperty(block)}")
   }
 
   fun dependencies(block: PluginListProperty.() -> Unit) {
-    dependencies.block()
-    setProperty("plugin.dependencies", "$dependencies")
+    setProperty("plugin.dependencies", "${PluginListProperty(block)}")
   }
 
   fun softDependencies(block: PluginListProperty.() -> Unit) {
-    softDependencies.block()
-    setProperty("plugin.soft-dependencies", "$softDependencies")
+    setProperty("plugin.soft-dependencies", "${PluginListProperty(block)}")
+  }
+
+  fun loadBefore(block: PluginListProperty.() -> Unit) {
+    setProperty("plugin.load-before", "${PluginListProperty(block)}")
+  }
+
+  fun commands(block: Commands.() -> Unit) {
+    setProperty("plugin.commands", "${Commands().apply(block)}")
   }
 }
 
+private enum class LoadTime {
+  STARTUP,
+  POSTWORLD;
+
+  override fun toString(): String = name.uppercase()
+}
+
+private class Commands {
+  private val commands: MutableMap<String, Command> = mutableMapOf()
+
+  fun add(name: String, block: Command.() -> Unit) {
+    commands[name] = Command().apply(block)
+  }
+
+  override fun toString(): String = commands.takeIf { it.isNotEmpty() }?.run {
+    "\n${map { (name, cmd) -> "  $name:\n$cmd" }.joinToString("\n")}"
+  } ?: "{}"
+}
+
+private class Command {
+  var description: String? = null
+  private val aliases = PluginListProperty()
+  var permission: String? = null
+  var permissionMessage: String? = null
+  var usage: String? = null
+
+  fun aliases(block: PluginListProperty.() -> Unit) {
+    aliases.block()
+  }
+
+  override fun toString(): String = mutableMapOf(
+    "description" to description,
+    "aliases" to aliases.takeIf(PluginListProperty::isNotEmpty)?.toString(),
+    "permission" to permission,
+    "permission-message" to permissionMessage,
+    "usage" to usage
+  ).filterValues { it != null }
+    .map { (key, value) -> "    $key: $value" }
+    .joinToString("\n")
+}
+
 private class ProxyPluginProperties {
+  init {
+    setProperty("proxy-plugin.dependencies", "[]")
+    setProperty("proxy-plugin.soft-dependencies", "[]")
+  }
+
   var description: String = ""
     set(value) {
       setProperty("proxy-plugin.description", value)
       field = value
     }
-  private val dependencies: PluginListProperty = PluginListProperty()
-  private val softDependencies: PluginListProperty = PluginListProperty()
-
-  init {
-    setProperty("proxy-plugin.description", "")
-    setProperty("proxy-plugin.dependencies", "")
-    setProperty("proxy-plugin.soft-dependencies", "")
-  }
 
   fun dependencies(block: PluginListProperty.() -> Unit) {
-    dependencies.block()
-    setProperty("proxy-plugin.dependencies", "$dependencies")
+    setProperty("proxy-plugin.dependencies", "${PluginListProperty(block)}")
   }
 
   fun softDependencies(block: PluginListProperty.() -> Unit) {
-    softDependencies.block()
-    setProperty("proxy-plugin.soft-dependencies", "$softDependencies")
+    setProperty("proxy-plugin.soft-dependencies", "${PluginListProperty(block)}")
   }
 }
 
-class PluginListProperty : LinkedHashSet<String>() {
+private class PluginListProperty(block: PluginListProperty.() -> Unit = {}) : LinkedHashSet<String>() {
+  init {
+    block()
+  }
+
   override fun toString(): String = yamlListOf()
 
   private fun yamlListOf() =
     takeIf { it.isNotEmpty() } // IF
       ?.toList()?.toString()   // DO
       ?: "[]"                    // ELSE
+}
+
+private fun <T : Any> T.applyIf(condition: Boolean, block: T.() -> Unit): T = if (condition) {
+  apply { block() }
+} else {
+  this
 }
