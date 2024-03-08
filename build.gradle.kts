@@ -1,3 +1,6 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.gradle.kotlin.dsl.support.uppercaseFirstChar
+import java.lang.System.getProperty
 import java.net.URI
 
 group = "net.eratiem"
@@ -8,28 +11,65 @@ plugins {
   alias(libs.plugins.kotlin.kapt) apply false
   alias(libs.plugins.shadow) apply false
   idea
+  `maven-publish`
 }
 
+// ###############
+// # Subprojects #
+// ###############
+
 subprojects {
+  group = rootProject.group
+  version = rootProject.version
+
   apply {
     plugin(rootProject.libs.plugins.kotlin.jvm.get().pluginId)
     plugin(rootProject.libs.plugins.shadow.get().pluginId)
+    plugin("maven-publish")
+  }
+
+  tasks {
+    named<ShadowJar>("shadowJar") {
+      archiveBaseName = rootProject.name
+      archiveClassifier = this@subprojects.name.takeIf { it != "util" } ?: ""
+    }
   }
 }
 
-sourceSets {
-  main {
-    java.setSrcDirs(listOf<String>())
-    kotlin.setSrcDirs(emptyList<String>())
-    resources.setSrcDirs(emptyList<String>())
-  }
 
-  test {
-    java.setSrcDirs(listOf<String>())
-    kotlin.setSrcDirs(emptyList<String>())
-    resources.setSrcDirs(emptyList<String>())
+// ##############
+// # Publishing #
+// ##############
+
+publishing {
+  repositories {
+    val repoNames = System.getProperties().filterKeys { (it as String).startsWith("project.publish", true) }
+      .map { (it.key as String).removePrefix("project.publish.").substringBefore(".") }.toSet()
+
+    repoNames.forEach {
+      maven {
+        name = it.uppercaseFirstChar()
+        url = uri(getProperty("project.publish.$it.url"))
+
+        getProperty("project.publish.$it.auth-type")?.let { authType ->
+          when (authType) {
+            else -> {
+              credentials {
+                username = "${properties["project.publish.$it.username"]}"
+                password = "${properties["project.publish.$it.access-token"]}"
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
+
+
+// ################
+// # All Projects #
+// ################
 
 allprojects {
   apply {
@@ -61,8 +101,27 @@ allprojects {
   }
 }
 
+
+// ###############
+// # Source-Sets #
+// ###############
+
+sourceSets {
+  main {
+    java.setSrcDirs(listOf<String>())
+    kotlin.setSrcDirs(emptyList<String>())
+    resources.setSrcDirs(emptyList<String>())
+  }
+
+  test {
+    java.setSrcDirs(listOf<String>())
+    kotlin.setSrcDirs(emptyList<String>())
+    resources.setSrcDirs(emptyList<String>())
+  }
+}
+
 fun <T> getPropertyOrNull(key: String, castFun: String.() -> T) = try {
-  System.getProperty(key).castFun()
+  getProperty(key).castFun()
 } catch (ex: Exception) {
   println(ex)
   null
