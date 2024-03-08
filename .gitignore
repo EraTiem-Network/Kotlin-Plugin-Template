@@ -5,7 +5,7 @@ build/
 !**/src/test/**/build/
 !**/src/main/**/run/
 !**/src/test/**/run/
-
+gradle.properties
 
 ### Files with secrets and private paths ###
 .idea/runConfigurations

@@ -12,6 +12,24 @@ dependencies {
   findProject(":util")?.let { implementation(it) }
 }
 
+rootProject.publishing {
+  publications {
+    val block: MavenPublication.() -> Unit = {
+      artifact(tasks.shadowJar) {
+        classifier = "velocity"
+      }
+
+      artifactId = rootProject.name
+    }
+
+    if (findByName("maven") != null) {
+      named("maven", block)
+    } else {
+      create("maven", block)
+    }
+  }
+}
+
 tasks {
   runVelocity {
     velocityVersion(libs.versions.velocity.get())
@@ -21,20 +39,23 @@ tasks {
     val srcDir = project.sourceSets.main.get().kotlin.srcDirs.toList()[0]
     val fileNameRegex = Regex(".*Plugin\\.kt")
 
-    val pluginFile = srcDir
+    srcDir
       .walk()
       .filter { it.isFile && fileNameRegex.matches(it.name) }
-      .first()
+      .takeIf { it.count() != 0 }
+      ?.first()
+      ?.let { pluginFile ->
 
-    val fileContent = pluginFile.readLines().joinToString("\n")
-    val pluginAnnotationRegex = Regex("@Plugin\\((.|\\s)*\\)", RegexOption.MULTILINE)
+        val fileContent = pluginFile.readLines().joinToString("\n")
+        val pluginAnnotationRegex = Regex("@Plugin\\((.|\\s)*\\)", RegexOption.MULTILINE)
 
-    pluginFile.writeText(
-      fileContent.replace(
-        pluginAnnotationRegex,
-        "@Plugin(\n${pluginAnnotationContent()}\n)".trimMargin()
-      )
-    )
+        pluginFile.writeText(
+          fileContent.replace(
+            pluginAnnotationRegex,
+            "@Plugin(\n${pluginAnnotationContent()}\n)".trimMargin()
+          )
+        )
+      }
   }
 
   withType<KotlinCompile> {

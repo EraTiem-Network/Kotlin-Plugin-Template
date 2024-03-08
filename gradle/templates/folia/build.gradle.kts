@@ -1,3 +1,5 @@
+import java.io.File.separator
+
 plugins {
   alias(libs.plugins.paperweight.userdev)
   alias(libs.plugins.run.paper)
@@ -13,9 +15,31 @@ dependencies {
   findProject(":util")?.let { implementation(it) }
 }
 
+rootProject.publishing {
+  publications {
+    val block: MavenPublication.() -> Unit = {
+      artifact(tasks.reobfJar) {
+        classifier = "folia"
+      }
+
+      artifactId = rootProject.name
+    }
+
+    if (findByName("maven") != null) {
+      named("maven", block)
+    } else {
+      create("maven", block)
+    }
+  }
+}
+
 tasks {
   runPaper.folia.registerTask {
     minecraftVersion(mcVersionRegex.find(libs.versions.folia.get())!!.value)
+  }
+
+  reobfJar {
+    outputJar.set(project.layout.buildDirectory.file("libs$separator${rootProject.name}-${rootProject.version}-folia.jar"))
   }
 
   withType<Copy> {

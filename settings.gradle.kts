@@ -117,6 +117,10 @@ private class ProjectModules {
       File("${projectDir.path}${separator}src${separator}test${separator}resources").mkdirs()
     }
   }
+
+  fun publishTo(name: String, block: PublishRepository.() -> Unit) {
+    PublishRepository(name).block()
+  }
 }
 
 private class UtilSettings {
@@ -125,6 +129,32 @@ private class UtilSettings {
       setProperty("project.create-util-lib-jar", "$value")
       field = value
     }
+}
+
+private class PublishRepository(
+  name: String
+) {
+  init {
+    setProperty("project.publish.${name.lowercase()}.auth-type", "${PublishRepositoryAuthType.USER_ACCESS_TOKEN}")
+  }
+
+  val name = name.takeIf { !it.contains(".") }?.lowercase() ?: throw Exception("Name may not contain: .")
+  var url: String = ""
+    set(value) {
+      setProperty("project.publish.$name.url", value)
+      field = value
+    }
+  var authType: PublishRepositoryAuthType = PublishRepositoryAuthType.USER_ACCESS_TOKEN
+    set(value) {
+      setProperty("project.publish.$name.auth-type", "$value")
+      field = value
+    }
+}
+
+private enum class PublishRepositoryAuthType {
+  USER_ACCESS_TOKEN;
+
+  override fun toString(): String = name.uppercase()
 }
 
 private class ServerPluginProperties {
