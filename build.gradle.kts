@@ -32,6 +32,10 @@ subprojects {
     named<ShadowJar>("shadowJar") {
       archiveBaseName = rootProject.name
       archiveClassifier = this@subprojects.name.takeIf { it != "util" } ?: ""
+
+      dependencies {
+        exclude(dependency(rootProject.libs.kotlin.stdlib.get()))
+      }
     }
   }
 }

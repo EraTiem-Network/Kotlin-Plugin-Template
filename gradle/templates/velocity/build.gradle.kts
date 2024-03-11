@@ -47,12 +47,12 @@ tasks {
       ?.let { pluginFile ->
 
         val fileContent = pluginFile.readLines().joinToString("\n")
-        val pluginAnnotationRegex = Regex("@Plugin\\((.|\\s)*\\)", RegexOption.MULTILINE)
+        val pluginAnnotationRegex = Regex("@Plugin\\((.|\\s)*\\)\\s*class", RegexOption.MULTILINE)
 
         pluginFile.writeText(
-          fileContent.replace(
+          fileContent.replaceFirst(
             pluginAnnotationRegex,
-            "@Plugin(\n${pluginAnnotationContent()}\n)".trimMargin()
+            "@Plugin(\n${pluginAnnotationContent()}\n)\nclass".trimMargin()
           )
         )
       }
