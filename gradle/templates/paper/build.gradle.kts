@@ -59,6 +59,7 @@ tasks {
     props["name"] = rootProject.name
     props["version"] = "${rootProject.version}"
     props["api_version"] = mcApiVersionRegex.find(libs.versions.paper.get())?.value
+    props["main_class"] = "${rootProject.group}.${rootProject.name.lowercase()}.${props["main_class"]}"
 
     filesMatching("plugin.yml") {
       expand(props.map { "plugin_${it.key}" to it.value }.toMap())
