@@ -43,6 +43,8 @@ tasks {
   }
 
   withType<Copy> {
+    outputs.upToDateWhen { false }
+
     val props = listOf(
       "main-class",
       "description",
