@@ -26,7 +26,7 @@ projectSettings {
     mainClass = "TemplatePlugin"
     description = "A simple Template-Plugin using Kotlin as main language"
     dependencies {
-      add("KotlinProvider")
+      add("CoreControl")
     }
   }
 }
