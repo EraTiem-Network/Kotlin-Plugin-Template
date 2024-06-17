@@ -1,0 +1,14 @@
+- name: EmpireRP | Public
+  url: https://nexus.empirerp.de/repository/public/
+  username: motzkiste
+  password: 5,W5dVDeD-4nN!}_?ibRtNMr;^7=pZ]Y,;UV<sHQ*:\;"#N{MU`m-533yz<~?L<i
+- name: EmpireRP | Snapshots
+  url: https://nexus.empirerp.de/repository/empirerp-snapshots/
+  username: motzkiste
+  password: 5,W5dVDeD-4nN!}_?ibRtNMr;^7=pZ]Y,;UV<sHQ*:\;"#N{MU`m-533yz<~?L<i
+  publish: true
+- name: EmpireRP | Releases
+  url: https://nexus.empirerp.de/repository/empirerp-releases/
+  username: motzkiste
+  password: 5,W5dVDeD-4nN!}_?ibRtNMr;^7=pZ]Y,;UV<sHQ*:\;"#N{MU`m-533yz<~?L<i
+  publish: true
