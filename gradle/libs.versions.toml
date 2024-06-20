@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.0.0"
-kotlinx-serialization = "1.6.3"
+kotlinx-serialization = "1.7.0"
 shadow = "8.1.1"
 run = "2.3.0"
 paperweight = "1.7.1"
@@ -18,7 +18,7 @@ plugin-folia = "1.20"
 kotlin-gradleplugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 kotlinx-serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinx-serialization" }
-kaml = { group = "com.charleskorn.kaml", name = "kaml", version = "0.59.0" }
+kaml = { group = "com.charleskorn.kaml", name = "kaml", version = "0.60.0" }
 
 # Minecraft Software Dependencies
 minecraft-server-folia = { group = "dev.folia", name = "folia-api", version.ref = "folia" }
