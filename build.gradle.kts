@@ -72,7 +72,16 @@ val repoList = File("maven-repos.yml").takeIf(File::exists)?.inputStream()?.use 
 
 publishing {
   repositories {
-    repoList?.filter { it.publish }?.forEach { createRepository(it) }
+    val isSnapshot = version.toString().contains("SNAPSHOT", true)
+
+    repoList?.filter { it.publish }
+      ?.filter {
+        if (isSnapshot)
+          it.name.contains("SNAPSHOT", true)
+        else
+          !it.name.contains("SNAPSHOT", true)
+      }
+      ?.forEach { createRepository(it) }
   }
 }
 
