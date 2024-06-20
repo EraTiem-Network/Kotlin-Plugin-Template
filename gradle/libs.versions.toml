@@ -25,6 +25,8 @@ minecraft-server-folia = { group = "dev.folia", name = "folia-api", version.ref 
 minecraft-server-paper = { group = "io.papermc.paper", name = "paper-api", version.ref = "paper" }
 minecraft-proxy-velocity = { group = "com.velocitypowered", name = "velocity-api", version.ref = "velocity" }
 
+corecontrol = { group = "net.eratiem", name = "CoreControl", version = "1.0.0-alpha.1-SNAPSHOT" }
+
 [plugins]
 shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
