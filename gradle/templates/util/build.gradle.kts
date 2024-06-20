@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-
+  compileOnly(rootProject.libs.corecontrol)
 }
 
 if (getProperty("project.create-util-lib-jar", "false").toBoolean()) {

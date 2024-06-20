@@ -10,6 +10,7 @@ dependencies {
   kapt(libs.minecraft.proxy.velocity)
 
   findProject(":util")?.let { implementation(it) }
+  compileOnly(variantOf(libs.corecontrol) { classifier("velocity") })
 }
 
 rootProject.publishing {

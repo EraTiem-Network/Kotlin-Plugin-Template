@@ -13,6 +13,7 @@ dependencies {
   paperweight.paperDevBundle(libs.versions.paper.get())
 
   findProject(":util")?.let { implementation(it) }
+  compileOnly(variantOf(libs.corecontrol) { classifier("paper") })
 }
 
 rootProject.publishing {
