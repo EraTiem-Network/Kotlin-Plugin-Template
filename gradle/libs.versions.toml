@@ -1,6 +1,6 @@
 [versions]
 kotlin = "2.0.0"
-kotlinx-serialization = "1.7.0"
+kotlinx-serialization = "1.7.3"
 shadow = "8.1.1"
 run = "2.3.0"
 paperweight = "1.7.1"
